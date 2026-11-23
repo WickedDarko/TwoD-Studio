@@ -1,0 +1,69 @@
+name: Sync GitHub Discussions to JSON
+
+on:
+  discussion:
+    types: [created, edited, deleted, pinned, unpinned, category_changed, answered, unanswered]
+  discussion_comment:
+    types: [created, deleted]
+  workflow_dispatch:
+
+permissions:
+  discussions: read
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch latest discussions via GraphQL
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const query = `
+              query($owner: String!, $name: String!) {
+                repository(owner: $owner, name: $name) {
+                  discussions(first: 10, orderBy: { field: UPDATED_AT, direction: DESC }) {
+                    nodes {
+                      title
+                      url
+                      createdAt
+                      updatedAt
+                      bodyText
+                      category { name }
+                      author { login }
+                      comments { totalCount }
+                    }
+                  }
+                }
+              }
+            `;
+            const res = await github.graphql(query, {
+              owner: context.repo.owner,
+              name: context.repo.repo
+            });
+            const nodes = (res.repository && res.repository.discussions && res.repository.discussions.nodes) || [];
+            const mapped = nodes.map(d => ({
+              title: d.title,
+              url: d.url,
+              category: d.category ? d.category.name : 'Discussion',
+              author: d.author ? d.author.login : '',
+              createdAt: d.createdAt,
+              updatedAt: d.updatedAt,
+              comments: d.comments ? d.comments.totalCount : 0,
+              excerpt: (d.bodyText || '').replace(/\s+/g, ' ').trim().slice(0, 180)
+            }));
+            fs.writeFileSync('discussions.json', JSON.stringify(mapped, null, 2) + '\n');
+
+      - name: Commit discussions.json if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add discussions.json
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: sync discussions.json"
+            git push
+          fi
