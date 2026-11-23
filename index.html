@@ -1170,7 +1170,7 @@
       <button class="nav-jump hide-sm" data-target="node-mesh" data-open="mesh">2.5D</button>
       <button class="nav-jump hide-sm" data-target="node-fx" data-open="fx">FX</button>
       <button class="nav-jump" data-target="node-install" data-open="install">Install</button>
-      <a class="nav-dl" data-apk-link href="https://github.com/WickedDarko/TwoD-Studio/releases/latest/download/TwoD-Studio-v1-6-2-build-29.apk">APK ↓</a>
+      <a class="nav-dl" data-releases-link href="https://github.com/WickedDarko/TwoD-Studio/releases">Releases ↗</a>
     </nav>
   </header>
 
@@ -1263,9 +1263,9 @@
             A touch-first 2D and 2.5D animation studio for Android. Explore the surrounding workspace and click any part to open it right inside the page.
           </p>
           <div class="hero-actions">
-            <a class="btn-primary" data-apk-link href="https://github.com/WickedDarko/TwoD-Studio/releases/latest/download/TwoD-Studio-v1-6-2-build-29.apk">
-              <span>Download Android APK</span>
-              <span>↓</span>
+            <a class="btn-primary" data-repo-link href="https://github.com/WickedDarko/TwoD-Studio">
+              <span>GitHub Repository</span>
+              <span>↗</span>
             </a>
             <button class="btn-subtle" data-open-direct="philosophy">Read Philosophy</button>
             <button class="btn-subtle" data-open-direct="install">Install &amp; Privacy</button>
@@ -1349,16 +1349,16 @@
               <div class="tile-eyebrow" style="margin-bottom: 8px;"><span>Android Release · v1.6.2 (Build 29)</span></div>
               <h2>Install APK &amp; Privacy</h2>
               <p>
-                Direct APK download for Android 7.0+. Free personal release, offline-first, no accounts, ads, analytics, or cloud sync.
+                Android 7.0+ APK via GitHub Releases. Free personal release, offline-first, no accounts, ads, analytics, or cloud sync.
               </p>
             </div>
             <span class="open-cue">Open Guide ↗</span>
           </div>
           <div class="install-tile-bar">
             <div class="install-tile-actions">
-              <a class="btn-primary" data-apk-link href="https://github.com/WickedDarko/TwoD-Studio/releases/latest/download/TwoD-Studio-v1-6-2-build-29.apk" onclick="event.stopPropagation()">
-                <span>Download APK (v1.6.2)</span>
-                <span>↓</span>
+              <a class="btn-primary" data-releases-link href="https://github.com/WickedDarko/TwoD-Studio/releases" onclick="event.stopPropagation()">
+                <span>GitHub Releases</span>
+                <span>↗</span>
               </a>
               <a class="btn-subtle" href="https://buymeacoffee.com/kannanlukom" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">
                 <svg class="coffee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 8h1a4 4 0 0 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>
@@ -1422,7 +1422,6 @@
       // (Edit FALLBACK_OWNER / FALLBACK_REPO only if using a custom domain)
       const FALLBACK_OWNER = 'WickedDarko';
       const FALLBACK_REPO = 'TwoD-Studio';
-      const APK_FILENAME = 'TwoD-Studio-v1-6-2-build-29.apk';
 
       function resolveRepoUrls() {
         let owner = FALLBACK_OWNER;
@@ -1437,15 +1436,20 @@
             repo = detectedRepo;
           }
         }
+        const base = `https://github.com/${owner}/${repo}`;
         return {
-          apk: `https://github.com/${owner}/${repo}/releases/latest/download/${APK_FILENAME}`,
-          privacy: `https://github.com/${owner}/${repo}/blob/main/PRIVACY.md`
+          repo: base,
+          releases: `${base}/releases`,
+          privacy: `${base}/blob/main/PRIVACY.md`
         };
       }
 
       const REPO_URLS = resolveRepoUrls();
-      document.querySelectorAll('[data-apk-link]').forEach(a => {
-        a.href = REPO_URLS.apk;
+      document.querySelectorAll('[data-repo-link]').forEach(a => {
+        a.href = REPO_URLS.repo;
+      });
+      document.querySelectorAll('[data-releases-link]').forEach(a => {
+        a.href = REPO_URLS.releases;
       });
 
 
@@ -1603,13 +1607,13 @@
               <div>
                 <h2 class="sheet-title" style="font-size: 28px;">Install the Android APK</h2>
                 <ol class="install-steps">
-                  <li>Download <code>TwoD-Studio-v1-6-2-build-29.apk</code> from the GitHub release link.</li>
+                  <li>Open the GitHub Releases page and download the latest <code>TwoD-Studio-*.apk</code> asset.</li>
                   <li>Open the APK on your device. If Android asks, allow your browser or file manager to install apps from that source, then return to the installer.</li>
                   <li>Review the Android install prompt and install TwoD Studio.</li>
                   <li>Launch the app and rotate your device to landscape.</li>
                 </ol>
                 <p class="debug-note">
-                  This direct-download APK is signed with the project's debug key, not a Play Store signing key. TwoD Studio is shared free of charge as a personal project; this is not an open-source release, and no source-code license is granted.
+                  The release APK is signed with the project's debug key, not a Play Store signing key. TwoD Studio is shared free of charge as a personal project; this is not an open-source release, and no source-code license is granted.
                 </p>
               </div>
               <div class="privacy-col">
@@ -1620,13 +1624,13 @@
                   </p>
                 </div>
                 <div class="footer-links">
-                  <a href="${REPO_URLS.apk}">
-                    <span>Download APK (1.6.2 · Build 29)</span><span>↓</span>
+                  <a href="${REPO_URLS.releases}">
+                    <span>GitHub Releases (Android APK)</span><span>↗</span>
                   </a>
                   <a href="${REPO_URLS.privacy}">
                     <span>Android Privacy Policy (PRIVACY.md)</span><span>→</span>
                   </a>
-                  <a href="https://github.com/WickedDarko/TwoD-Studio">
+                  <a href="${REPO_URLS.repo}">
                     <span>GitHub Repository</span><span>→</span>
                   </a>
                   <a href="https://buymeacoffee.com/kannanlukom" target="_blank" rel="noopener noreferrer">
