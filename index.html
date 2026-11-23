@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script async src="https://www.googletagmanager.com/gtm.js?id=G-BTLVLT3RKX"></script>
+   <script async src="https://www.googletagmanager.com/gtm.js?id=G-BTLVLT3RKX"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
@@ -14,7 +14,7 @@
   <link rel="shortcut icon" type="image/png" href="twod_icon_no_bg.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap" rel="stylesheet" />
   <style>
     :root {
       color-scheme: dark;
@@ -145,7 +145,9 @@
       box-shadow:
         0 22px 50px -18px rgba(0, 0, 0, 0.85),
         inset 0 1px 0 rgba(255, 255, 255, 0.05);
-      transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.26s var(--ease-fluid), opacity 0.18s ease;
+      transition: border-color 0.22s ease, box-shadow 0.22s ease;
+      transform-style: preserve-3d;
+      will-change: transform, opacity, filter;
       z-index: 2;
     }
 
@@ -159,7 +161,6 @@
         0 28px 62px -16px rgba(0, 0, 0, 0.92),
         0 0 0 1px rgba(138, 180, 224, 0.12),
         inset 0 1px 0 rgba(255, 255, 255, 0.08);
-      transform: translateY(-2px);
     }
 
     .node.is-lifted {
@@ -1144,39 +1145,829 @@
         display: none;
       }
     }
+
+    /* =====================================================
+       3D MULTIPLANE DEPTH, PHYSICS & LAYER 2 GLASS PLATES
+       ===================================================== */
+    :root {
+      --l2-font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .spatial-plane {
+      position: absolute;
+      inset: 0;
+      pointer-events: auto;
+    }
+
+    #plane-1 { z-index: 2; }
+    #plane-2 { z-index: 3; pointer-events: none; }
+    #plane-3 { z-index: 4; pointer-events: none; }
+
+    body.layer2-active #plane-1 { pointer-events: none; }
+    body.layer2-active #plane-2 { pointer-events: auto; }
+    body.layer2-active #plane-3 { pointer-events: none; }
+
+    body.layer3-active #plane-1 { pointer-events: none; }
+    body.layer3-active #plane-2 { pointer-events: none; }
+    body.layer3-active #plane-3 { pointer-events: auto; }
+
+    #world-scale-2,
+    #world-scale-3 {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform-origin: 0 0;
+      will-change: transform;
+    }
+
+    #world-2 {
+      position: relative;
+      width: 1940px;
+      height: 1380px;
+    }
+
+    #world-3 {
+      position: relative;
+      width: 1840px;
+      height: 1300px;
+    }
+
+    /* Subtle atmospheric light field behind Layer 2 */
+    #l2-atmosphere {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0;
+      background:
+        radial-gradient(ellipse 68% 58% at 48% 48%, rgba(138, 180, 224, 0.11) 0%, rgba(72, 106, 148, 0.04) 45%, transparent 74%),
+        radial-gradient(ellipse 42% 46% at 80% 28%, rgba(196, 218, 240, 0.06) 0%, transparent 66%);
+    }
+
+    /* Top-left HUD Depth Switcher */
+    .hud-left-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      pointer-events: auto;
+    }
+
+    .layer-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      padding: 4px;
+      border-radius: 999px;
+      background: rgba(12, 15, 21, 0.78);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+    }
+
+    .layer-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: transparent;
+      border: none;
+      border-radius: 999px;
+      padding: 5px 12px;
+      font-family: var(--l2-font);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-dim);
+      cursor: pointer;
+      transition: color 0.18s ease, background 0.18s ease;
+      white-space: nowrap;
+    }
+
+    .layer-btn:hover {
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .layer-btn.active {
+      color: var(--ink);
+      background: rgba(138, 180, 224, 0.16);
+      box-shadow: inset 0 0 0 1px rgba(138, 180, 224, 0.32);
+    }
+
+    .layer-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+    }
+
+    .nav-layer2,
+    .nav-layer3 {
+      display: none;
+    }
+    body.layer2-active .nav-layer1,
+    body.layer3-active .nav-layer1 {
+      display: none;
+    }
+    body.layer2-active .nav-layer2 {
+      display: inline-block;
+    }
+    body.layer3-active .nav-layer3 {
+      display: inline-block;
+    }
+
+    /* =====================================================
+       LAYER 2: BORDERLESS GLASS PLATES (CLEAN SANS ONLY)
+       Zero serif, zero mono, zero hard borders, open layout
+       ===================================================== */
+    .glass-plate {
+      position: absolute;
+      background: linear-gradient(
+        155deg,
+        rgba(220, 232, 248, 0.06) 0%,
+        rgba(140, 170, 210, 0.022) 50%,
+        rgba(10, 13, 20, 0.14) 100%
+      );
+      backdrop-filter: blur(20px) saturate(128%);
+      -webkit-backdrop-filter: blur(20px) saturate(128%);
+      border: none;
+      border-radius: 26px;
+      box-shadow:
+        inset 0 1px 0 rgba(235, 244, 255, 0.14),
+        inset 0 0 44px rgba(138, 180, 224, 0.03),
+        0 34px 76px -30px rgba(0, 0, 0, 0.68);
+      font-family: var(--l2-font);
+      color: var(--ink);
+      transform-style: preserve-3d;
+      will-change: transform, opacity, filter;
+      z-index: 2;
+    }
+
+    .glass-plate.expandable {
+      cursor: pointer;
+    }
+
+    .glass-plate.expandable::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: radial-gradient(circle at 22% 0%, rgba(210, 230, 255, 0.09), transparent 62%);
+      opacity: 0;
+      transition: opacity 0.32s ease;
+      pointer-events: none;
+    }
+
+    .glass-plate.expandable:hover::before {
+      opacity: 1;
+    }
+
+    .glass-plate.is-lifted {
+      opacity: 0 !important;
+      pointer-events: none;
+    }
+
+    /* Plane 2 (Learn More) — Balanced 4-Plate Asymmetric Layout */
+    #l2-windows {
+      left: 590px;
+      top: 410px;
+      width: 740px;
+      padding: 48px 52px 44px;
+      background: linear-gradient(
+        160deg,
+        rgba(210, 228, 250, 0.078) 0%,
+        rgba(120, 156, 202, 0.028) 55%,
+        rgba(8, 10, 16, 0.14) 100%
+      );
+      cursor: pointer;
+    }
+
+    #l2-releases {
+      left: 1385px;
+      top: 140px;
+      width: 455px;
+      padding: 32px 34px 28px;
+    }
+
+    #l2-discussions {
+      left: 95px;
+      top: 745px;
+      width: 495px;
+      padding: 32px 34px 28px;
+    }
+
+    #l2-manual {
+      left: 1335px;
+      top: 745px;
+      width: 505px;
+      padding: 32px 36px 28px 42px;
+      background: linear-gradient(
+        155deg,
+        rgba(216, 232, 252, 0.078) 0%,
+        rgba(138, 180, 224, 0.03) 48%,
+        rgba(9, 12, 19, 0.18) 100%
+      );
+    }
+
+    /* Sub-Plane 2B (Plane 3 · Windows Build Focus Space) */
+    #win-center {
+      left: 600px;
+      top: 440px;
+      width: 640px;
+      padding: 42px 46px 38px;
+      background: linear-gradient(
+        160deg,
+        rgba(210, 228, 250, 0.082) 0%,
+        rgba(120, 156, 202, 0.03) 55%,
+        rgba(8, 10, 16, 0.16) 100%
+      );
+      user-select: text;
+    }
+
+    .win-mini-plate {
+      padding: 26px 28px 24px;
+      border-radius: 22px;
+    }
+
+    .win-mini-plate .l2-plate-heading {
+      font-size: 21px;
+      margin-bottom: 9px;
+    }
+
+    .win-mini-plate .l2-plate-copy {
+      font-size: 13.5px;
+      margin-bottom: 14px;
+    }
+
+    #win-keyboard { left: 130px;  top: 165px; width: 400px; }
+    #win-input    { left: 1300px; top: 175px; width: 410px; }
+    #win-parity   { left: 140px;  top: 825px; width: 410px; }
+    #win-soon     {
+      left: 1295px;
+      top: 820px;
+      width: 410px;
+      background: linear-gradient(
+        155deg,
+        rgba(180, 206, 238, 0.045) 0%,
+        rgba(110, 142, 186, 0.018) 55%,
+        rgba(8, 10, 16, 0.12) 100%
+      );
+    }
+
+    /* Honest empty-state styling for live Discussions card */
+    .l2-empty-box {
+      padding: 16px 0 10px;
+      border-top: 1px solid rgba(220, 234, 252, 0.08);
+    }
+
+    .l2-empty-title {
+      font-size: 14.5px;
+      font-weight: 500;
+      color: rgba(240, 244, 250, 0.88);
+      margin-bottom: 6px;
+    }
+
+    .l2-empty-copy {
+      font-size: 13.5px;
+      line-height: 1.58;
+      color: rgba(210, 218, 230, 0.64);
+    }
+
+    /* Subtle architectural folio spine hint on the User Manual floating plate */
+    #l2-manual::after {
+      content: "";
+      position: absolute;
+      top: 22px;
+      bottom: 22px;
+      left: 18px;
+      width: 1px;
+      background: linear-gradient(180deg, transparent, rgba(138, 180, 224, 0.34) 22%, rgba(138, 180, 224, 0.34) 78%, transparent);
+      pointer-events: none;
+    }
+
+    /* =====================================================
+       ARCHITECTURAL FOLIO / BOOK-OPENING OVERLAY (MANUAL)
+       Subtle 3D hinged spread—zero cartoonish page flips
+       ===================================================== */
+    body.folio-open #viewport {
+      filter: blur(8px) brightness(0.36);
+      transform: scale(0.96);
+      pointer-events: none;
+    }
+
+    body.folio-open #grid-canvas {
+      filter: blur(5px);
+      opacity: 0.4;
+    }
+
+    body.folio-open .hud-top,
+    body.folio-open .hud-bottom {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .folio-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 70;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      perspective: 2200px;
+      pointer-events: none;
+      visibility: hidden;
+    }
+
+    .folio-layer.visible {
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .folio-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(4, 5, 9, 0.56);
+      opacity: 0;
+      transition: opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+      cursor: pointer;
+    }
+
+    .folio-layer.open .folio-backdrop {
+      opacity: 1;
+    }
+
+    .folio-book {
+      position: relative;
+      z-index: 2;
+      width: min(1240px, 95vw);
+      height: min(88dvh, 880px);
+      display: flex;
+      flex-direction: column;
+      border-radius: 18px;
+      background: #07080b;
+      box-shadow:
+        inset 0 1px 0 rgba(236, 244, 255, 0.14),
+        0 48px 110px -22px rgba(0, 0, 0, 0.94);
+      overflow: hidden;
+      transform-style: preserve-3d;
+      transform-origin: 50% 50%;
+      transform: translate3d(0, 22px, 0) rotateY(10deg) scale(0.91);
+      opacity: 0;
+      transition:
+        transform 0.66s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.42s ease;
+      will-change: transform, opacity;
+    }
+
+    .folio-layer.open .folio-book {
+      transform: translate3d(0, 0, 0) rotateY(0deg) scale(1);
+      opacity: 1;
+    }
+
+    .folio-bar {
+      height: 48px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px 0 22px;
+      background: rgba(11, 14, 21, 0.96);
+      border-bottom: 1px solid rgba(236, 233, 226, 0.09);
+      font-family: var(--l2-font);
+      z-index: 6;
+    }
+
+    .folio-bar-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink);
+    }
+
+    .folio-bar-sub {
+      color: var(--ink-dim);
+      font-weight: 400;
+    }
+
+    .folio-bar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .folio-stage {
+      position: relative;
+      flex: 1;
+      width: 100%;
+      overflow: hidden;
+      background: #07080b;
+      perspective: 2000px;
+    }
+
+    .folio-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+      background: #07080b;
+      opacity: 0;
+      transition: opacity 0.42s ease 0.14s;
+    }
+
+    .folio-layer.open .folio-frame {
+      opacity: 1;
+    }
+
+    /* Subtle central spine crease light/shadow along the 272px index seam */
+    .folio-spine-shadow {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 272px;
+      width: 34px;
+      transform: translateX(-50%);
+      pointer-events: none;
+      z-index: 4;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(0, 0, 0, 0.48) 44%,
+        rgba(138, 180, 224, 0.14) 50%,
+        rgba(0, 0, 0, 0.42) 56%,
+        transparent 100%
+      );
+      opacity: 0;
+      transition: opacity 0.55s ease 0.22s;
+    }
+
+    .folio-layer.open .folio-spine-shadow {
+      opacity: 1;
+    }
+
+    /* Hinged Front Cover Leaf that swings smoothly open from the 272px spine */
+    .folio-cover-leaf {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 272px;
+      right: 0;
+      z-index: 5;
+      pointer-events: none;
+      transform-origin: left center;
+      transform: rotateY(0deg);
+      opacity: 1;
+      background:
+        radial-gradient(circle at 25% 25%, rgba(138, 180, 224, 0.12), transparent 58%),
+        linear-gradient(155deg, rgba(16, 21, 31, 0.97) 0%, rgba(9, 11, 17, 0.99) 100%);
+      border-left: 1px solid rgba(138, 180, 224, 0.22);
+      box-shadow: -18px 0 40px rgba(0, 0, 0, 0.55);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 48px 56px;
+      backface-visibility: hidden;
+      transition:
+        transform 0.72s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.42s ease 0.16s;
+      will-change: transform, opacity;
+    }
+
+    .folio-layer.open .folio-cover-leaf {
+      transform: rotateY(-108deg);
+      opacity: 0;
+    }
+
+    .folio-cover-label {
+      font-family: var(--l2-font);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    .folio-cover-title {
+      font-family: var(--sans);
+      font-size: 36px;
+      font-weight: 600;
+      letter-spacing: -0.035em;
+      color: var(--ink);
+      margin-bottom: 10px;
+    }
+
+    .folio-cover-sub {
+      font-family: var(--l2-font);
+      font-size: 15px;
+      color: var(--ink-dim);
+      max-width: 420px;
+    }
+
+    @media (max-width: 960px) {
+      .folio-layer { padding: 10px; }
+      .folio-book { width: 100%; height: calc(100dvh - 20px); border-radius: 14px; }
+      .folio-spine-shadow { display: none; }
+      .folio-cover-leaf { left: 0; }
+    }
+
+    /* Clean Neo-Grotesque Typography (Inter only) */
+    .l2-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      font-family: var(--l2-font);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--accent);
+      margin-bottom: 18px;
+    }
+
+    .l2-hero-title {
+      font-family: var(--l2-font);
+      font-size: clamp(44px, 4.6vw, 62px);
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      line-height: 1.02;
+      color: #f4f5f7;
+      margin-bottom: 20px;
+    }
+
+    .l2-hero-title span {
+      color: rgba(196, 218, 242, 0.82);
+      font-weight: 400;
+    }
+
+    .l2-hero-lead {
+      font-family: var(--l2-font);
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.68;
+      color: rgba(232, 236, 242, 0.72);
+      max-width: 590px;
+      margin-bottom: 32px;
+    }
+
+    .l2-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+
+    .l2-btn-glass {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 11px 22px;
+      border-radius: 999px;
+      background: rgba(240, 244, 250, 0.94);
+      color: #090b10;
+      font-family: var(--l2-font);
+      font-size: 13.5px;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s var(--ease-fluid), opacity 0.2s ease;
+    }
+
+    .l2-btn-glass:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    .l2-btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 18px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      color: rgba(240, 244, 250, 0.88);
+      font-family: var(--l2-font);
+      font-size: 13.5px;
+      font-weight: 400;
+      border: none;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .l2-btn-ghost:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .l2-meta-line {
+      font-family: var(--l2-font);
+      font-size: 12.5px;
+      font-weight: 400;
+      color: rgba(200, 214, 232, 0.5);
+    }
+
+    .l2-plate-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--l2-font);
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(186, 206, 230, 0.62);
+      margin-bottom: 12px;
+    }
+
+    .l2-plate-heading {
+      font-family: var(--l2-font);
+      font-size: 26px;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      color: #f3f5f8;
+      margin-bottom: 12px;
+    }
+
+    .l2-plate-copy {
+      font-family: var(--l2-font);
+      font-size: 14.5px;
+      font-weight: 400;
+      line-height: 1.62;
+      color: rgba(226, 230, 238, 0.68);
+      margin-bottom: 20px;
+    }
+
+    .l2-stream {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .l2-stream-row {
+      padding: 13px 0;
+      border-top: 1px solid rgba(220, 234, 252, 0.08);
+    }
+
+    .l2-stream-meta {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--l2-font);
+      font-size: 12px;
+      font-weight: 400;
+      color: rgba(180, 202, 228, 0.58);
+      margin-bottom: 4px;
+    }
+
+    .l2-stream-meta b {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .l2-stream-title {
+      font-family: var(--l2-font);
+      font-size: 14.5px;
+      font-weight: 500;
+      color: rgba(244, 246, 250, 0.92);
+      line-height: 1.38;
+    }
+
+    .l2-plate-cue {
+      margin-top: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--l2-font);
+      font-size: 12.5px;
+      font-weight: 500;
+      color: rgba(186, 210, 238, 0.72);
+    }
+
+    /* Glassy Sheet Override for Layer 2 modules (Clean Inter, no serif/mono) */
+    .sheet-card.glass-sheet {
+      background: linear-gradient(160deg, rgba(20, 27, 40, 0.84) 0%, rgba(10, 13, 22, 0.92) 100%);
+      backdrop-filter: blur(26px) saturate(135%);
+      -webkit-backdrop-filter: blur(26px) saturate(135%);
+      border: none;
+      box-shadow:
+        inset 0 1px 0 rgba(235, 245, 255, 0.16),
+        0 44px 100px -20px rgba(0, 0, 0, 0.9);
+      font-family: var(--l2-font);
+    }
+
+    .sheet-card.glass-sheet .sheet-crumb {
+      font-family: var(--l2-font);
+      font-size: 12.5px;
+    }
+
+    .sheet-card.glass-sheet .sheet-title {
+      font-family: var(--l2-font);
+      font-weight: 600;
+      font-size: clamp(28px, 3.4vw, 38px);
+      letter-spacing: -0.035em;
+    }
+
+    .sheet-card.glass-sheet .sheet-lead {
+      font-family: var(--l2-font);
+      font-weight: 400;
+    }
+
+    .l2-sheet-stream {
+      display: flex;
+      flex-direction: column;
+      margin-top: 8px;
+    }
+
+    .l2-sheet-link {
+      display: block;
+      padding: 18px 0;
+      border-top: 1px solid rgba(220, 234, 252, 0.1);
+      transition: padding-left 0.22s var(--ease-fluid);
+    }
+
+    .l2-sheet-link:hover {
+      padding-left: 8px;
+    }
+
+    .l2-sheet-link h3 {
+      font-family: var(--l2-font);
+      font-size: 16px;
+      font-weight: 500;
+      color: #f4f5f7;
+      margin: 5px 0 6px;
+    }
+
+    .l2-sheet-link p {
+      font-family: var(--l2-font);
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 1.6;
+      color: rgba(228, 232, 238, 0.68);
+    }
+
+    @media (max-width: 880px) {
+      .layer-btn .hide-xs {
+        display: none;
+      }
+      body.layer2-active .nav-layer2.hide-sm,
+      body.layer3-active .nav-layer3.hide-sm {
+        display: none;
+      }
+    }
+
   </style>
 </head>
 <body>
 
   <!-- PARALLAX GRID & POINTER VECTOR CANVAS -->
   <canvas id="grid-canvas"></canvas>
+  <div id="l2-atmosphere"></div>
   <div class="vignette"></div>
 
   <!-- TOP FLOATING NAVIGATION HUD -->
   <header class="hud-top">
-    <div class="hud-pill">
-      <span class="hud-brand">
-        <img class="hud-icon" src="twod_icon_no_bg.png" alt="" aria-hidden="true" />
-        <strong>TwoD Studio</strong>
-      </span>
-      <span class="sep hide-sm">·</span>
-      <span class="hide-sm" id="coord-readout">1000, 657</span>
+    <div class="hud-left-group">
+      <div class="hud-pill">
+        <span class="hud-brand">
+          <img class="hud-icon" src="twod_icon_no_bg.png" alt="" aria-hidden="true" />
+          <strong>TwoD Studio</strong>
+        </span>
+        <span class="sep hide-sm">·</span>
+        <span class="hide-sm" id="coord-readout">1000, 657</span>
+      </div>
+
+      <div class="layer-switch" role="tablist" aria-label="Depth planes">
+        <button class="layer-btn active" id="btn-layer-1" role="tab" aria-selected="true">Studio</button>
+        <button class="layer-btn" id="btn-layer-2" role="tab" aria-selected="false"><span class="layer-dot"></span>Learn More</button>
+      </div>
     </div>
 
     <nav class="hud-nav" aria-label="Quick travel">
-      <button class="nav-jump active" data-target="node-hero">Center</button>
-      <button class="nav-jump" data-target="node-philosophy" data-open="philosophy">Philosophy</button>
-      <button class="nav-jump hide-sm" data-target="node-rigging" data-open="rigging">Rigging</button>
-      <button class="nav-jump hide-sm" data-target="node-mesh" data-open="mesh">2.5D</button>
-      <button class="nav-jump hide-sm" data-target="node-fx" data-open="fx">FX</button>
-      <button class="nav-jump" data-target="node-install" data-open="install">Install</button>
+      <!-- Plane 1 Nav -->
+      <button class="nav-jump nav-layer1 active" data-plane="1" data-target="node-hero">Center</button>
+      <button class="nav-jump nav-layer1" data-plane="1" data-target="node-philosophy" data-open="philosophy">Philosophy</button>
+      <button class="nav-jump nav-layer1 hide-sm" data-plane="1" data-target="node-rigging" data-open="rigging">Rigging</button>
+      <button class="nav-jump nav-layer1 hide-sm" data-plane="1" data-target="node-mesh" data-open="mesh">2.5D</button>
+      <button class="nav-jump nav-layer1 hide-sm" data-plane="1" data-target="node-fx" data-open="fx">FX</button>
+      <button class="nav-jump nav-layer1" data-plane="1" data-target="node-install" data-open="install">Install</button>
+
+      <!-- Plane 2 Nav (Learn More) -->
+      <button class="nav-jump nav-layer2" data-plane="2" data-target="l2-windows">Windows</button>
+      <button class="nav-jump nav-layer2" data-plane="2" data-target="l2-releases" data-open="l2_releases">What's New</button>
+      <button class="nav-jump nav-layer2" data-plane="2" data-target="l2-discussions" data-open="l2_discussions">Discussions</button>
+      <button class="nav-jump nav-layer2" data-plane="2" data-target="l2-manual">User Manual</button>
+
+      <!-- Plane 3 Nav (Windows Sub-Plane) -->
+      <button class="nav-jump nav-layer3" id="nav-back-l2" style="color: var(--accent);">← Learn More</button>
+      <button class="nav-jump nav-layer3" data-plane="3" data-target="win-center">Overview</button>
+      <button class="nav-jump nav-layer3 hide-sm" data-plane="3" data-target="win-keyboard" data-open="win_keyboard">Shortcuts</button>
+      <button class="nav-jump nav-layer3 hide-sm" data-plane="3" data-target="win-input" data-open="win_input">Pen &amp; Mouse</button>
+      <button class="nav-jump nav-layer3 hide-sm" data-plane="3" data-target="win-parity" data-open="win_parity">Parity</button>
+
       <a class="nav-dl" data-releases-link href="https://github.com/WickedDarko/TwoD-Studio/releases">Releases ↗</a>
     </nav>
   </header>
 
-  <!-- 2D SPATIAL CAMERA VIEWPORT -->
+  <!-- 3D MULTIPLANE SPATIAL CAMERA VIEWPORT -->
   <div id="viewport">
-    <div id="world-scale">
+    <div class="spatial-plane" id="plane-1">
+      <div id="world-scale">
       <div id="world">
 
         <!-- SUBTLE BLUEPRINT CONNECTORS RADIATING FROM CENTER -->
@@ -1269,6 +2060,7 @@
             </a>
             <button class="btn-subtle" data-open-direct="philosophy">Read Philosophy</button>
             <button class="btn-subtle" data-open-direct="install">Install &amp; Privacy</button>
+            <button class="btn-subtle" id="hero-dive-l2" style="border-color: rgba(138,180,224,0.32); color: var(--accent);">Learn More ↘</button>
           </div>
           <div class="hero-specs">
             <span>Android 7.0+ (API 24)</span> · Landscape · ARM64, ARMv7, x86_64<br />
@@ -1370,6 +2162,21 @@
         </footer>
 
       </div>
+      </div>
+    </div>
+
+    <!-- DEPTH PLANE 02 (LEARN MORE — MOUNTED BY layer2-v9.js) -->
+    <div class="spatial-plane" id="plane-2" aria-hidden="true">
+      <div id="world-scale-2">
+        <div id="world-2"></div>
+      </div>
+    </div>
+
+    <!-- SUB-PLANE 2B / DEPTH PLANE 03 (WINDOWS BUILD — MOUNTED BY layer2-v9.js) -->
+    <div class="spatial-plane" id="plane-3" aria-hidden="true">
+      <div id="world-scale-3">
+        <div id="world-3"></div>
+      </div>
     </div>
   </div>
 
@@ -1392,13 +2199,41 @@
     </div>
   </div>
 
+
+  <!-- ARCHITECTURAL FOLIO SPREAD FOR USER MANUAL -->
+  <div class="folio-layer" id="manual-folio-layer" aria-hidden="true">
+    <div class="folio-backdrop" id="folio-backdrop"></div>
+    <div class="folio-book" id="folio-book" role="dialog" aria-modal="true" aria-label="TwoD Studio User Manual">
+      <div class="folio-bar">
+        <div class="folio-bar-title">
+          <span class="layer-dot" aria-hidden="true"></span>
+          <span>TwoD Studio</span>
+          <span class="folio-bar-sub">· User Manual</span>
+        </div>
+        <div class="folio-bar-actions">
+          <a class="sheet-btn" href="user-manual/index.html" target="_blank" rel="noopener noreferrer">Open Full Page ↗</a>
+          <button class="sheet-btn collapse-btn" id="folio-close" title="Close manual (Esc)">Close ✕</button>
+        </div>
+      </div>
+      <div class="folio-stage">
+        <iframe class="folio-frame" id="manual-folio-frame" src="" title="TwoD Studio User Manual"></iframe>
+        <div class="folio-spine-shadow" aria-hidden="true"></div>
+        <div class="folio-cover-leaf" aria-hidden="true">
+          <div class="folio-cover-label">TwoD Studio Documentation</div>
+          <div class="folio-cover-title">User Manual</div>
+          <div class="folio-cover-sub">Workspace anatomy, character rigging, 2.5D meshes, walking paths, and export pipeline.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- BOTTOM STEERING HUD & LIVE MINI-MAP -->
   <div class="hud-bottom">
     <div class="steer-bar">
       <div class="compass" aria-hidden="true">
         <div class="compass-dot" id="compass-dot"></div>
       </div>
-      <span class="steer-hint-desktop">Move pointer to steer · Scroll toward pointer · Click any part to expand</span>
+      <span class="steer-hint-desktop">Move pointer to steer · Scroll toward pointer · Click any card to open</span>
       <span class="steer-hint-mobile">Drag canvas · Tap any part to open</span>
       <button class="drift-toggle" id="drift-toggle" title="Toggle pointer-edge steering">Drift: On</button>
     </div>
@@ -1413,6 +2248,7 @@
     <img id="lightbox-img" src="" alt="Expanded view" />
   </div>
 
+  <script src="layer2.js"></script>
   <script>
     (() => {
       const WORLD_W = 2020;
@@ -1650,8 +2486,17 @@
       };
 
       const viewport = document.getElementById('viewport');
+      const plane1El = document.getElementById('plane-1');
+      const plane2El = document.getElementById('plane-2');
+      const plane3El = document.getElementById('plane-3');
       const worldScaleEl = document.getElementById('world-scale');
       const worldEl = document.getElementById('world');
+      const connectorsEl = document.getElementById('connectors');
+      const worldScale2El = document.getElementById('world-scale-2');
+      const world2El = document.getElementById('world-2');
+      const worldScale3El = document.getElementById('world-scale-3');
+      const world3El = document.getElementById('world-3');
+      const l2Atmosphere = document.getElementById('l2-atmosphere');
       const gridCanvas = document.getElementById('grid-canvas');
       const gctx = gridCanvas.getContext('2d');
       const coordReadout = document.getElementById('coord-readout');
@@ -1672,18 +2517,277 @@
       const sheetNext = document.getElementById('sheet-next');
       const sheetClose = document.getElementById('sheet-close');
 
+      const btnLayer1 = document.getElementById('btn-layer-1');
+      const btnLayer2 = document.getElementById('btn-layer-2');
+
+      // Mount Layer 2 (Learn More) & Sub-Plane 2B (Windows) glass plates
+      let L2_MODULE_ORDER = [];
+      let L3_MODULE_ORDER = [];
+      if (window.TWOD_LAYER2 && typeof window.TWOD_LAYER2.init === 'function') {
+        const l2Reg = window.TWOD_LAYER2.init(world2El, world3El, {
+          repoUrls: REPO_URLS,
+          onReturnToLayer1: () => flyToLayer(1),
+          onOpenWindowsPlane: () => flyToLayer(3),
+          onReturnToLayer2: () => flyToLayer(2),
+          onOpenModule: (key) => openModule(key),
+          onOpenManual: () => openManualFolio()
+        });
+        if (l2Reg && l2Reg.modules) {
+          Object.assign(MODULES, l2Reg.modules);
+          L2_MODULE_ORDER = l2Reg.orderL2 || [];
+          L3_MODULE_ORDER = l2Reg.orderL3 || [];
+        }
+      }
+
+      // =====================================================
+      // TRUE FREE-FLOATING 6-DOF PHYSICS + INVISIBLE BOUNDARIES
+      // - Zero fixed angles, zero snapping back after hover.
+      // - Every card drifts freely in X, Y, Z and rotates freely
+      //   in Pitch/Yaw/Roll with real linear & angular velocity.
+      // - Invisible per-card boundary cells + soft pairwise
+      //   separation ensure cards NEVER overlap on screen.
+      // =====================================================
+      const FOCAL = 780;
+      const Z_PLANE_1 = 0;
+      const Z_PLANE_2 = 1480;
+      const Z_PLANE_3 = 2960;
+
+      const L1_CFG = {
+        'node-hero':       { initZ:   0, minZ: -35, maxZ:  40, flightZ:    0, mass: 1.50, maxRx:  6.5, maxRy:  8.5, maxRz: 2.4 },
+        'node-rigging':    { initZ: -45, minZ: -85, maxZ:  85, flightZ: -175, mass: 0.92, maxRx: 11.5, maxRy: 14.5, maxRz: 4.5 },
+        'node-philosophy': { initZ:  55, minZ: -80, maxZ:  95, flightZ:  125, mass: 1.12, maxRx: 10.5, maxRy: 13.5, maxRz: 4.0 },
+        'node-posing':     { initZ: -30, minZ: -85, maxZ:  85, flightZ: -120, mass: 0.96, maxRx: 11.5, maxRy: 14.5, maxRz: 4.5 },
+        'node-mesh':       { initZ:  65, minZ: -80, maxZ: 100, flightZ:  165, mass: 1.05, maxRx: 11.5, maxRy: 14.5, maxRz: 4.5 },
+        'node-paint':      { initZ: -55, minZ: -90, maxZ:  80, flightZ: -195, mass: 0.90, maxRx: 11.5, maxRy: 14.5, maxRz: 4.5 },
+        'node-library':    { initZ:  40, minZ: -85, maxZ:  95, flightZ:   95, mass: 1.02, maxRx: 11.5, maxRy: 14.5, maxRz: 4.5 },
+        'node-fx':         { initZ: -40, minZ: -85, maxZ:  85, flightZ: -140, mass: 0.96, maxRx: 11.0, maxRy: 14.0, maxRz: 4.2 },
+        'node-trajectory': { initZ:  75, minZ: -80, maxZ: 105, flightZ:  185, mass: 1.10, maxRx: 11.5, maxRy: 14.5, maxRz: 4.5 },
+        'node-export':     { initZ: -25, minZ: -85, maxZ:  90, flightZ: -100, mass: 1.00, maxRx: 11.0, maxRy: 14.0, maxRz: 4.2 },
+        'node-install':    { initZ:  50, minZ: -75, maxZ:  95, flightZ:  135, mass: 1.18, maxRx:  9.5, maxRy: 12.0, maxRz: 3.5 }
+      };
+
+      const L2_CFG = {
+        'l2-windows':      { initZ:   0, minZ: -35, maxZ:  40, flightZ:    0, mass: 1.45, maxRx:  7.0, maxRy:  9.0, maxRz: 2.5 },
+        'l2-releases':     { initZ: -50, minZ: -85, maxZ:  90, flightZ: -155, mass: 0.92, maxRx: 12.0, maxRy: 15.0, maxRz: 4.8 },
+        'l2-discussions':  { initZ:  60, minZ: -80, maxZ: 100, flightZ:  135, mass: 1.08, maxRx: 11.5, maxRy: 14.5, maxRz: 4.5 },
+        'l2-manual':       { initZ: -38, minZ: -85, maxZ:  85, flightZ: -135, mass: 1.02, maxRx: 11.0, maxRy: 14.0, maxRz: 4.2 }
+      };
+
+      const L3_CFG = {
+        'win-center':      { initZ:   0, minZ: -30, maxZ:  35, flightZ:    0, mass: 1.48, maxRx:  6.0, maxRy:  8.0, maxRz: 2.2 },
+        'win-keyboard':    { initZ: -45, minZ: -80, maxZ:  85, flightZ: -145, mass: 0.92, maxRx: 11.5, maxRy: 14.5, maxRz: 4.4 },
+        'win-input':       { initZ:  55, minZ: -80, maxZ:  95, flightZ:  130, mass: 0.96, maxRx: 11.5, maxRy: 14.5, maxRz: 4.4 },
+        'win-parity':      { initZ:  68, minZ: -80, maxZ: 100, flightZ:  160, mass: 1.04, maxRx: 11.0, maxRy: 14.0, maxRz: 4.2 },
+        'win-soon':        { initZ: -35, minZ: -80, maxZ:  85, flightZ: -120, mass: 0.94, maxRx: 11.5, maxRy: 14.5, maxRz: 4.4 }
+      };
+
+      function createFreeNode(el, cfg, idx) {
+        // Deterministic pseudo-random helper for varied initial free-floating states
+        const r = (k) => {
+          const v = Math.sin((idx + 1) * 12.9898 + k * 78.233) * 43758.5453;
+          return (v - Math.floor(v)) * 2 - 1; // [-1, 1]
+        };
+
+        const item = {
+          el,
+          // Free-floating linear position (offset from base layout spot) & velocity
+          x: r(1) * 14,
+          y: r(2) * 14,
+          z: cfg.initZ,
+          vx: r(3) * 10,
+          vy: r(4) * 10,
+          vz: r(5) * 11,
+
+          // Invisible boundary box (computed dynamically from neighbor clearances)
+          minX: -28, maxX: 28,
+          minY: -28, maxY: 28,
+          minZ: cfg.minZ,
+          maxZ: cfg.maxZ,
+          flightZ: cfg.flightZ,
+          mass: cfg.mass || 1.0,
+
+          // Free-floating 3D orientation (degrees) & angular velocity (deg/sec)
+          rx: r(6) * (cfg.maxRx * 0.65),
+          ry: r(7) * (cfg.maxRy * 0.65),
+          rz: r(8) * (cfg.maxRz * 0.65),
+          vrx: r(9) * 2.4,
+          vry: r(10) * 2.8,
+          vrz: r(11) * 1.1,
+          maxRx: cfg.maxRx,
+          maxRy: cfg.maxRy,
+          maxRz: cfg.maxRz,
+
+          // Smooth wandering noise generators (so drift & tumble evolve organically forever)
+          wanderAngle: (r(12) + 1) * Math.PI,
+          wanderZ: r(13),
+          torqueX: r(14) * 1.5,
+          torqueY: r(15) * 1.8,
+          torqueZ: r(16) * 0.7,
+
+          hovered: false,
+          wasHovered: false,
+          hoverAmt: 0,
+          curBlur: 0
+        };
+
+        el.addEventListener('pointerenter', () => { item.hovered = true; });
+        el.addEventListener('pointerleave', () => {
+          item.hovered = false;
+          // On release from hover, give a fresh, gentle organic drift nudge
+          // so it floats freely onward instead of reverting to any fixed angle!
+          item.vrx += (Math.random() - 0.5) * 3.8;
+          item.vry += (Math.random() - 0.5) * 4.4;
+          item.vrz += (Math.random() - 0.5) * 1.6;
+          item.vx += (Math.random() - 0.5) * 14;
+          item.vy += (Math.random() - 0.5) * 14;
+          item.vz += (Math.random() - 0.5) * 16;
+        });
+
+        return item;
+      }
+
+      const PLANES = {
+        1: {
+          id: 1,
+          w: WORLD_W,
+          h: WORLD_H,
+          baseZ: Z_PLANE_1,
+          camX: 1000,
+          camY: 657,
+          targetX: 1000,
+          targetY: 657,
+          velX: 0,
+          velY: 0,
+          prevVelX: 0,
+          prevVelY: 0,
+          scaleEl: worldScaleEl,
+          worldEl: worldEl,
+          heroId: 'node-hero',
+          order: MODULE_ORDER,
+          nodes: Array.from(worldEl.querySelectorAll('.node')).map((el, i) =>
+            createFreeNode(el, L1_CFG[el.id] || { initZ: 0, minZ: -70, maxZ: 70, flightZ: 0, mass: 1, maxRx: 10, maxRy: 12, maxRz: 4 }, i)
+          )
+        },
+        2: {
+          id: 2,
+          w: 1940,
+          h: 1380,
+          baseZ: Z_PLANE_2,
+          camX: 960,
+          camY: 610,
+          targetX: 960,
+          targetY: 610,
+          velX: 0,
+          velY: 0,
+          prevVelX: 0,
+          prevVelY: 0,
+          scaleEl: worldScale2El,
+          worldEl: world2El,
+          heroId: 'l2-windows',
+          order: L2_MODULE_ORDER,
+          nodes: Array.from(world2El.querySelectorAll('.glass-plate')).map((el, i) =>
+            createFreeNode(el, L2_CFG[el.id] || { initZ: 0, minZ: -70, maxZ: 70, flightZ: 0, mass: 1, maxRx: 10, maxRy: 12, maxRz: 4 }, i + 11)
+          )
+        },
+        3: {
+          id: 3,
+          w: 1840,
+          h: 1300,
+          baseZ: Z_PLANE_3,
+          camX: 920,
+          camY: 615,
+          targetX: 920,
+          targetY: 615,
+          velX: 0,
+          velY: 0,
+          prevVelX: 0,
+          prevVelY: 0,
+          scaleEl: worldScale3El,
+          worldEl: world3El,
+          heroId: 'win-center',
+          order: L3_MODULE_ORDER,
+          nodes: Array.from(world3El.querySelectorAll('.glass-plate')).map((el, i) =>
+            createFreeNode(el, L3_CFG[el.id] || { initZ: 0, minZ: -70, maxZ: 70, flightZ: 0, mass: 1, maxRx: 10, maxRy: 12, maxRz: 4 }, i + 21)
+          )
+        }
+      };
+
+      // Automatically compute each card's invisible roaming boundary box
+      // from actual gaps to neighboring cards so cards have maximum freedom
+      // while NEVER overlapping on screen.
+      function computeInvisibleBounds(plane) {
+        const SAFETY_GAP = 26; // minimum buffer between cards (accounts for 3D tilt/scale)
+        const MAX_ROAM = 68;   // cap max roaming radius so cards stay in their region
+
+        for (const a of plane.nodes) {
+          const ax1 = a.el.offsetLeft;
+          const ay1 = a.el.offsetTop;
+          const aw = a.el.offsetWidth;
+          const ah = a.el.offsetHeight || 280;
+          const ax2 = ax1 + aw;
+          const ay2 = ay1 + ah;
+
+          let availLeft = Math.min(MAX_ROAM, ax1 - 18);
+          let availRight = Math.min(MAX_ROAM, plane.w - ax2 - 18);
+          let availTop = Math.min(MAX_ROAM, ay1 - 18);
+          let availBottom = Math.min(MAX_ROAM, plane.h - ay2 - 18);
+
+          for (const b of plane.nodes) {
+            if (a === b) continue;
+            const bx1 = b.el.offsetLeft;
+            const by1 = b.el.offsetTop;
+            const bw = b.el.offsetWidth;
+            const bh = b.el.offsetHeight || 280;
+            const bx2 = bx1 + bw;
+            const by2 = by1 + bh;
+
+            // Vertical band overlap -> constrain horizontal roam to half the gap
+            if (ay1 < by2 + SAFETY_GAP && ay2 > by1 - SAFETY_GAP) {
+              if (bx2 <= ax1) {
+                const halfGap = Math.max(8, (ax1 - bx2 - SAFETY_GAP) * 0.5);
+                availLeft = Math.min(availLeft, halfGap);
+              } else if (bx1 >= ax2) {
+                const halfGap = Math.max(8, (bx1 - ax2 - SAFETY_GAP) * 0.5);
+                availRight = Math.min(availRight, halfGap);
+              }
+            }
+
+            // Horizontal band overlap -> constrain vertical roam to half the gap
+            if (ax1 < bx2 + SAFETY_GAP && ax2 > bx1 - SAFETY_GAP) {
+              if (by2 <= ay1) {
+                const halfGap = Math.max(8, (ay1 - by2 - SAFETY_GAP) * 0.5);
+                availTop = Math.min(availTop, halfGap);
+              } else if (by1 >= ay2) {
+                const halfGap = Math.max(8, (by1 - ay2 - SAFETY_GAP) * 0.5);
+                availBottom = Math.min(availBottom, halfGap);
+              }
+            }
+          }
+
+          a.minX = -Math.max(10, availLeft);
+          a.maxX =  Math.max(10, availRight);
+          a.minY = -Math.max(10, availTop);
+          a.maxY =  Math.max(10, availBottom);
+        }
+      }
+
+      let activeLayer = 1;
+      let planeCamZ = Z_PLANE_1;
+      let zFlight = null;
+
+      function easeInOutCubic(t) {
+        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      }
+
+      function getPlane() {
+        return PLANES[activeLayer];
+      }
+
       let W = window.innerWidth;
       let H = window.innerHeight;
       let DPR = Math.min(window.devicePixelRatio || 1, 2);
       let scale = 1;
 
-      // Start centered directly on the Hero hearth
-      let camX = 1000;
-      let camY = 657;
-      let targetX = camX;
-      let targetY = camY;
-
-      // Pointer steering state
       let pointerX = W / 2;
       let pointerY = H / 2;
       let hasPointer = false;
@@ -1693,7 +2797,6 @@
       let lastDirX = 0;
       let lastDirY = 1;
 
-      // Drag / Tap discrimination
       let isDragging = false;
       let pointerDownX = 0;
       let pointerDownY = 0;
@@ -1703,7 +2806,6 @@
       let dragVelX = 0;
       let dragVelY = 0;
 
-      // Expanded In-Page Sheet State
       let activeModuleKey = null;
       let activeTileEl = null;
       let isAnimatingSheet = false;
@@ -1718,41 +2820,42 @@
         return 1;
       }
 
-      function getBounds() {
+      function getBounds(p) {
         const halfViewW = (W / scale) * 0.5;
         const halfViewH = (H / scale) * 0.5;
         const pad = 40;
-        const minX = halfViewW >= WORLD_W * 0.5 ? WORLD_W * 0.5 : halfViewW - pad;
-        const maxX = halfViewW >= WORLD_W * 0.5 ? WORLD_W * 0.5 : WORLD_W - halfViewW + pad;
-        const minY = halfViewH >= WORLD_H * 0.5 ? WORLD_H * 0.5 : halfViewH - pad;
-        const maxY = halfViewH >= WORLD_H * 0.5 ? WORLD_H * 0.5 : WORLD_H - halfViewH + pad;
+        const minX = halfViewW >= p.w * 0.5 ? p.w * 0.5 : halfViewW - pad;
+        const maxX = halfViewW >= p.w * 0.5 ? p.w * 0.5 : p.w - halfViewW + pad;
+        const minY = halfViewH >= p.h * 0.5 ? p.h * 0.5 : halfViewH - pad;
+        const maxY = halfViewH >= p.h * 0.5 ? p.h * 0.5 : p.h - halfViewH + pad;
         return { minX, maxX, minY, maxY };
       }
 
-      function clampTarget() {
-        const b = getBounds();
-        targetX = clamp(targetX, b.minX, b.maxX);
-        targetY = clamp(targetY, b.minY, b.maxY);
+      function clampTarget(p) {
+        const plane = p || getPlane();
+        const b = getBounds(plane);
+        plane.targetX = clamp(plane.targetX, b.minX, b.maxX);
+        plane.targetY = clamp(plane.targetY, b.minY, b.maxY);
       }
 
-      const nodeEls = Array.from(worldEl.querySelectorAll('.node'));
       const navButtons = Array.from(document.querySelectorAll('.nav-jump'));
 
       function buildMinimapNodes() {
+        const p = getPlane();
         minimap.querySelectorAll('.mm-node').forEach(n => n.remove());
         const mw = minimap.clientWidth;
         const mh = minimap.clientHeight;
-        nodeEls.forEach(el => {
+        p.nodes.forEach(({ el }) => {
           const r = document.createElement('div');
-          r.className = 'mm-node' + (el.id === 'node-hero' ? ' hero' : '');
+          r.className = 'mm-node' + (el.id === p.heroId ? ' hero' : '');
           const x = el.offsetLeft;
           const y = el.offsetTop;
           const w = el.offsetWidth;
-          const h = el.offsetHeight || 300;
-          r.style.left = (x / WORLD_W) * mw + 'px';
-          r.style.top = (y / WORLD_H) * mh + 'px';
-          r.style.width = Math.max(4, (w / WORLD_W) * mw) + 'px';
-          r.style.height = Math.max(4, (h / WORLD_H) * mh) + 'px';
+          const h = el.offsetHeight || 260;
+          r.style.left = (x / p.w) * mw + 'px';
+          r.style.top = (y / p.h) * mh + 'px';
+          r.style.width = Math.max(4, (w / p.w) * mw) + 'px';
+          r.style.height = Math.max(4, (h / p.h) * mh) + 'px';
           minimap.insertBefore(r, mmView);
         });
       }
@@ -1765,16 +2868,99 @@
         gridCanvas.width = W * DPR;
         gridCanvas.height = H * DPR;
         gctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-        clampTarget();
+        clampTarget(PLANES[1]);
+        clampTarget(PLANES[2]);
+        clampTarget(PLANES[3]);
+        computeInvisibleBounds(PLANES[1]);
+        computeInvisibleBounds(PLANES[2]);
+        computeInvisibleBounds(PLANES[3]);
         buildMinimapNodes();
       }
 
       function focusNode(id) {
         const el = document.getElementById(id);
         if (!el) return;
-        targetX = el.offsetLeft + el.offsetWidth * 0.5;
-        targetY = el.offsetTop + el.offsetHeight * 0.5;
-        clampTarget();
+        const p = getPlane();
+        p.targetX = el.offsetLeft + el.offsetWidth * 0.5;
+        p.targetY = el.offsetTop + el.offsetHeight * 0.5;
+        clampTarget(p);
+      }
+
+      // =====================================================
+      // MULTIPLANE Z-AXIS DEPTH FLIGHT (ONLY ON LAYER SWITCH)
+      // =====================================================
+      function flyToLayer(layerNum, instant) {
+        if (layerNum !== 1 && layerNum !== 2 && layerNum !== 3) return;
+        if (activeModuleKey) collapseModule();
+        if (folioOpen) closeManualFolio();
+
+        // When zooming from Learn More into Windows sub-plane, center Plane 2 on the Windows card first
+        if (layerNum === 3 && activeLayer === 2) {
+          const winCard = document.getElementById('l2-windows');
+          if (winCard) {
+            PLANES[2].targetX = winCard.offsetLeft + winCard.offsetWidth * 0.5;
+            PLANES[2].targetY = winCard.offsetTop + winCard.offsetHeight * 0.5;
+            clampTarget(PLANES[2]);
+          }
+          PLANES[3].targetX = 920;
+          PLANES[3].targetY = 615;
+          clampTarget(PLANES[3]);
+        }
+
+        activeLayer = layerNum;
+        const isL1 = layerNum === 1;
+        const isL2 = layerNum === 2;
+        const isL3 = layerNum === 3;
+        const toZ = isL3 ? Z_PLANE_3 : (isL2 ? Z_PLANE_2 : Z_PLANE_1);
+
+        document.body.classList.toggle('layer2-active', isL2);
+        document.body.classList.toggle('layer3-active', isL3);
+        plane1El.setAttribute('aria-hidden', isL1 ? 'false' : 'true');
+        plane2El.setAttribute('aria-hidden', isL2 ? 'false' : 'true');
+        plane3El.setAttribute('aria-hidden', isL3 ? 'false' : 'true');
+
+        btnLayer1.classList.toggle('active', isL1);
+        btnLayer2.classList.toggle('active', isL2 || isL3);
+        btnLayer1.setAttribute('aria-selected', isL1 ? 'true' : 'false');
+        btnLayer2.setAttribute('aria-selected', (isL2 || isL3) ? 'true' : 'false');
+
+        buildMinimapNodes();
+
+        if (instant) {
+          planeCamZ = toZ;
+          zFlight = null;
+        } else {
+          const dist = Math.abs(toZ - planeCamZ);
+          zFlight = {
+            fromZ: planeCamZ,
+            toZ,
+            start: performance.now(),
+            duration: dist > 1800 ? 1450 : 1120
+          };
+        }
+
+        const targetHash = isL3 ? '#windows' : (isL2 ? '#learn-more' : '');
+        if (window.location.hash !== targetHash) {
+          history.replaceState(null, '', targetHash || (window.location.pathname + window.location.search));
+        }
+      }
+
+      const navBackL2 = document.getElementById('nav-back-l2');
+      if (navBackL2) {
+        navBackL2.addEventListener('click', (e) => {
+          e.stopPropagation();
+          flyToLayer(2);
+        });
+      }
+
+      btnLayer1.addEventListener('click', () => flyToLayer(1));
+      btnLayer2.addEventListener('click', () => flyToLayer(2));
+      const heroDiveBtn = document.getElementById('hero-dive-l2');
+      if (heroDiveBtn) {
+        heroDiveBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          flyToLayer(2);
+        });
       }
 
       // =====================================================
@@ -1790,10 +2976,11 @@
         `).join('');
 
         return `
+          ${mod.img ? `
           <div class="sheet-hero-media" data-lightbox="${mod.img}">
             <img src="${mod.img}" alt="${mod.alt}" />
             <span class="sheet-zoom-badge">Tap image for full size</span>
-          </div>
+          </div>` : ''}
           <div class="sheet-body">
             <h2 class="sheet-title">${mod.title}</h2>
             <p class="sheet-lead">${mod.lead}</p>
@@ -1815,29 +3002,26 @@
 
       function openModule(key, sourceEl) {
         const mod = MODULES[key];
-        if (!mod || isAnimatingSheet) return;
+        if (!mod || isAnimatingSheet || zFlight) return;
         isAnimatingSheet = true;
 
         const tile = sourceEl || document.getElementById(mod.nodeId);
-        // 1. FIRST: measure source tile's live viewport rectangle before lifting
         const firstRect = tile ? tile.getBoundingClientRect() : null;
 
         activeModuleKey = key;
         activeTileEl = tile;
 
-        // Smoothly glide background camera to center the opened tile so collapse lands right in view
         if (tile) focusNode(tile.id);
 
-        // Populate expanded sheet content
         sheetIdx.textContent = mod.idx;
         sheetCat.textContent = mod.cat;
         sheetCard.classList.toggle('narrow', !!mod.narrow);
+        sheetCard.classList.toggle('glass-sheet', !!mod.glass);
         sheetCard.classList.remove('content-ready');
         sheetScroll.innerHTML = buildModuleHTML(mod);
         sheetScroll.scrollTop = 0;
         bindSheetLightbox();
 
-        // 2. LAST: reveal sheet layout instantaneously (invisible transition) and measure final box
         sheetCard.style.transition = 'none';
         sheetCard.style.transform = 'none';
         sheetCard.style.opacity = '1';
@@ -1846,7 +3030,6 @@
 
         const lastRect = sheetCard.getBoundingClientRect();
 
-        // 3. INVERT: position sheet directly over the source tile
         if (firstRect && firstRect.width > 0 && firstRect.height > 0) {
           const dx = (firstRect.left + firstRect.width * 0.5) - (lastRect.left + lastRect.width * 0.5);
           const dy = (firstRect.top + firstRect.height * 0.5) - (lastRect.top + lastRect.height * 0.5);
@@ -1862,10 +3045,8 @@
         if (tile) tile.classList.add('is-lifted');
         document.body.classList.add('sheet-open');
 
-        // Force layout commit
         sheetCard.getBoundingClientRect();
 
-        // 4. PLAY: fluid spring-like morph into full in-page stage
         requestAnimationFrame(() => {
           sheetLayer.classList.add('open');
           sheetCard.style.transition = 'transform 0.44s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.32s ease';
@@ -1887,7 +3068,6 @@
         if (!mod || !activeModuleKey || isAnimatingSheet) return;
         isAnimatingSheet = true;
 
-        // Restore previous tile visibility & lift the new tile on the canvas behind
         if (activeTileEl) activeTileEl.classList.remove('is-lifted');
         const nextTile = document.getElementById(mod.nodeId);
         activeModuleKey = nextKey;
@@ -1902,6 +3082,7 @@
           sheetIdx.textContent = mod.idx;
           sheetCat.textContent = mod.cat;
           sheetCard.classList.toggle('narrow', !!mod.narrow);
+          sheetCard.classList.toggle('glass-sheet', !!mod.glass);
           sheetScroll.innerHTML = buildModuleHTML(mod);
           sheetScroll.scrollTop = 0;
           bindSheetLightbox();
@@ -1920,12 +3101,10 @@
         const tile = activeTileEl;
         const lastRect = sheetCard.getBoundingClientRect();
 
-        // Unblur canvas immediately so you watch it sharpen as the sheet folds back into place
         sheetLayer.classList.remove('open');
         document.body.classList.remove('sheet-open');
         sheetCard.classList.remove('content-ready');
 
-        // Re-measure tile target position in viewport (accounts for smooth camera glide)
         const targetRect = tile ? tile.getBoundingClientRect() : null;
 
         if (targetRect && targetRect.width > 0 && targetRect.height > 0) {
@@ -1955,34 +3134,92 @@
         }, 360);
       }
 
-      // Sheet Controls
       sheetClose.addEventListener('click', collapseModule);
+
+      // =====================================================
+      // ARCHITECTURAL FOLIO BOOK-OPENING CONTROLLER (MANUAL)
+      // =====================================================
+      const folioLayer = document.getElementById('manual-folio-layer');
+      const folioBackdrop = document.getElementById('folio-backdrop');
+      const folioClose = document.getElementById('folio-close');
+      const folioFrame = document.getElementById('manual-folio-frame');
+      let folioOpen = false;
+      let folioLoaded = false;
+
+      function openManualFolio() {
+        if (folioOpen || zFlight) return;
+        if (activeModuleKey) collapseModule();
+        folioOpen = true;
+        if (!folioLoaded) {
+          folioFrame.src = 'user-manual/index.html';
+          folioLoaded = true;
+        }
+        focusNode('l2-manual');
+        folioLayer.classList.add('visible');
+        folioLayer.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('folio-open');
+        requestAnimationFrame(() => {
+          folioLayer.classList.add('open');
+        });
+      }
+
+      function closeManualFolio() {
+        if (!folioOpen) return;
+        folioOpen = false;
+        folioLayer.classList.remove('open');
+        document.body.classList.remove('folio-open');
+        setTimeout(() => {
+          if (!folioOpen) {
+            folioLayer.classList.remove('visible');
+            folioLayer.setAttribute('aria-hidden', 'true');
+          }
+        }, 520);
+      }
+
+      folioClose.addEventListener('click', closeManualFolio);
+      folioBackdrop.addEventListener('click', closeManualFolio);
+
       sheetBackdrop.addEventListener('click', collapseModule);
 
       sheetPrev.addEventListener('click', () => {
         if (!activeModuleKey) return;
-        const idx = MODULE_ORDER.indexOf(activeModuleKey);
-        const prev = MODULE_ORDER[(idx - 1 + MODULE_ORDER.length) % MODULE_ORDER.length];
+        const order = getPlane().order;
+        const idx = order.indexOf(activeModuleKey);
+        if (idx === -1) return;
+        const prev = order[(idx - 1 + order.length) % order.length];
         switchModuleInPlace(prev);
       });
 
       sheetNext.addEventListener('click', () => {
         if (!activeModuleKey) return;
-        const idx = MODULE_ORDER.indexOf(activeModuleKey);
-        const next = MODULE_ORDER[(idx + 1) % MODULE_ORDER.length];
+        const order = getPlane().order;
+        const idx = order.indexOf(activeModuleKey);
+        if (idx === -1) return;
+        const next = order[(idx + 1) % order.length];
         switchModuleInPlace(next);
       });
 
-      // Clicking any expandable canvas tile opens it fluidly (ignoring drags)
-      document.querySelectorAll('.node.expandable').forEach(tile => {
+      document.querySelectorAll('.node.expandable, .glass-plate.expandable').forEach(tile => {
         tile.addEventListener('click', (e) => {
-          if (e.target.closest('a')) return;
+          if (tile.id === 'l2-manual') {
+            if (e.metaKey || e.ctrlKey || e.shiftKey) return;
+            e.preventDefault();
+            if (pointerMovedDist > 9) return;
+            openManualFolio();
+            return;
+          }
+          if (tile.id === 'l2-windows') {
+            if (e.target.closest('a, button')) return;
+            if (pointerMovedDist > 9) return;
+            flyToLayer(3);
+            return;
+          }
+          if (e.target.closest('a, button')) return;
           if (pointerMovedDist > 9) return;
           openModule(tile.dataset.module, tile);
         });
       });
 
-      // Hero quick-open buttons
       document.querySelectorAll('[data-open-direct]').forEach(btn => {
         btn.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -1990,7 +3227,6 @@
         });
       });
 
-      // Top HUD nav buttons glide to the module (click again or double-intent opens)
       navButtons.forEach(btn => {
         btn.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -2007,7 +3243,6 @@
         });
       });
 
-      // Pause pointer-edge drift while hovering HUD
       document.querySelectorAll('.hud-top, .hud-bottom').forEach(el => {
         el.addEventListener('pointerenter', () => { pointerOverHUD = true; });
         el.addEventListener('pointerleave', () => { pointerOverHUD = false; });
@@ -2019,7 +3254,6 @@
         driftToggle.classList.toggle('off', !driftEnabled);
       });
 
-      // Track mouse pointer globally for steering & scroll vector
       window.addEventListener('pointermove', (e) => {
         if (e.pointerType === 'touch') return;
         pointerX = e.clientX;
@@ -2041,12 +3275,15 @@
       });
 
       // =====================================================
-      // SCROLL PROPULSION TOWARD POINTER (PAUSED WHEN SHEET OPEN)
+      // SCROLL PROPULSION ACROSS THE PLANE (ZERO ZOOM!)
+      // Strictly glides camX/camY toward pointer; cards react
+      // with depth parallax and gentle spring inertia.
       // =====================================================
       window.addEventListener('wheel', (e) => {
-        if (activeModuleKey || lightbox.classList.contains('open')) return;
+        if (activeModuleKey || folioOpen || zFlight || lightbox.classList.contains('open')) return;
         e.preventDefault();
 
+        const p = getPlane();
         const vx = pointerX - W * 0.5;
         const vy = pointerY - H * 0.5;
         const len = Math.hypot(vx, vy);
@@ -2061,32 +3298,29 @@
 
         const delta = clamp(e.deltaY, -160, 160);
         const speedBoost = 1.65 / scale;
-        targetX += ux * delta * speedBoost;
-        targetY += uy * delta * speedBoost;
+        p.targetX += ux * delta * speedBoost;
+        p.targetY += uy * delta * speedBoost;
 
         if (Math.abs(e.deltaX) > 2) {
-          targetX += clamp(e.deltaX, -120, 120) * (1.1 / scale);
+          p.targetX += clamp(e.deltaX, -120, 120) * (1.1 / scale);
         }
 
-        clampTarget();
+        clampTarget(p);
       }, { passive: false });
 
-      // =====================================================
-      // DIRECT PANNING (TOUCH ON ANDROID + DRAG ON CANVAS)
-      // =====================================================
       viewport.addEventListener('pointerdown', (e) => {
-        if (activeModuleKey) return;
+        if (activeModuleKey || folioOpen || zFlight) return;
         pointerDownX = e.clientX;
         pointerDownY = e.clientY;
         pointerMovedDist = 0;
 
         if (e.target.closest('a, button')) return;
-        // On desktop mouse, let hero text be selectable; touch drags anywhere
-        if (e.pointerType === 'mouse' && e.target.closest('#node-hero')) return;
+        if (e.pointerType === 'mouse' && (e.target.closest('#node-hero') || e.target.closest('#win-center'))) return;
 
+        const p = getPlane();
         isDragging = true;
-        dragOriginX = targetX;
-        dragOriginY = targetY;
+        dragOriginX = p.targetX;
+        dragOriginY = p.targetY;
         dragVelX = 0;
         dragVelY = 0;
         viewport.classList.add('dragging');
@@ -2099,13 +3333,14 @@
         pointerMovedDist = Math.hypot(rawDx, rawDy);
         if (pointerMovedDist < 4) return;
 
+        const p = getPlane();
         const nextX = dragOriginX - rawDx / scale;
         const nextY = dragOriginY - rawDy / scale;
-        dragVelX = nextX - targetX;
-        dragVelY = nextY - targetY;
-        targetX = nextX;
-        targetY = nextY;
-        clampTarget();
+        dragVelX = nextX - p.targetX;
+        dragVelY = nextY - p.targetY;
+        p.targetX = nextX;
+        p.targetY = nextY;
+        clampTarget(p);
       });
 
       function endDrag() {
@@ -2113,23 +3348,24 @@
         isDragging = false;
         viewport.classList.remove('dragging');
         if (pointerMovedDist > 9) {
-          targetX += clamp(dragVelX * 4.2, -220, 220);
-          targetY += clamp(dragVelY * 4.2, -220, 220);
-          clampTarget();
+          const p = getPlane();
+          p.targetX += clamp(dragVelX * 4.2, -220, 220);
+          p.targetY += clamp(dragVelY * 4.2, -220, 220);
+          clampTarget(p);
         }
       }
       window.addEventListener('pointerup', endDrag);
       window.addEventListener('pointercancel', endDrag);
 
-      // Interactive Mini-Map Scrubbing
       let mmDragging = false;
       function moveFromMinimap(clientX, clientY) {
+        const p = getPlane();
         const rect = minimap.getBoundingClientRect();
         const rx = clamp((clientX - rect.left) / rect.width, 0, 1);
         const ry = clamp((clientY - rect.top) / rect.height, 0, 1);
-        targetX = rx * WORLD_W;
-        targetY = ry * WORLD_H;
-        clampTarget();
+        p.targetX = rx * p.w;
+        p.targetY = ry * p.h;
+        clampTarget(p);
       }
       minimap.addEventListener('pointerdown', (e) => {
         e.stopPropagation();
@@ -2144,7 +3380,6 @@
       minimap.addEventListener('pointerup', () => { mmDragging = false; });
       minimap.addEventListener('pointercancel', () => { mmDragging = false; });
 
-      // Lightbox & Keyboard Shortcuts
       function closeLightbox() {
         lightbox.classList.remove('open');
         lightbox.setAttribute('aria-hidden', 'true');
@@ -2156,10 +3391,16 @@
           if (e.key === 'Escape') closeLightbox();
           return;
         }
-        if (activeModuleKey) {
+        if (folioOpen) {
+          if (e.key === 'Escape') closeManualFolio();
+        } else if (activeModuleKey) {
           if (e.key === 'Escape') collapseModule();
           else if (e.key === 'ArrowRight') sheetNext.click();
           else if (e.key === 'ArrowLeft') sheetPrev.click();
+        } else if (activeLayer === 3 && e.key === 'Escape') {
+          flyToLayer(2);
+        } else if (activeLayer === 2 && e.key === 'Escape') {
+          flyToLayer(1);
         }
       });
 
@@ -2168,38 +3409,70 @@
       });
 
       // =====================================================
-      // PARALLAX GRID & STEERING VECTOR RENDERER
+      // MULTI-STRATA PARALLAX GRID
       // =====================================================
-      function drawBackgroundGrid(nx, ny, dist) {
+      function drawBackgroundGrid(p, nx, ny, dist) {
         gctx.clearRect(0, 0, W, H);
-        const spacing = 72;
-        const ox = ((-camX * 0.55 * scale) % spacing + spacing) % spacing;
-        const oy = ((-camY * 0.55 * scale) % spacing + spacing) % spacing;
 
-        gctx.strokeStyle = 'rgba(236, 233, 226, 0.036)';
-        gctx.lineWidth = 1;
-        gctx.beginPath();
-        for (let x = ox; x < W; x += spacing) {
-          gctx.moveTo(x, 0);
-          gctx.lineTo(x, H);
-        }
-        for (let y = oy; y < H; y += spacing) {
-          gctx.moveTo(0, y);
-          gctx.lineTo(W, y);
-        }
-        gctx.stroke();
+        const zProgress = clamp(planeCamZ / Z_PLANE_2, 0, 1);
+        const cx = W * 0.5;
+        const cy = H * 0.5;
 
-        gctx.strokeStyle = 'rgba(236, 233, 226, 0.09)';
-        gctx.beginPath();
-        for (let x = ox; x < W; x += spacing * 2) {
-          for (let y = oy; y < H; y += spacing * 2) {
-            gctx.moveTo(x - 3, y);
-            gctx.lineTo(x + 3, y);
-            gctx.moveTo(x, y - 3);
-            gctx.lineTo(x, y + 3);
+        const STRATUM_GAP = 480;
+        const baseSpacing = 72;
+
+        for (let i = -1; i <= 2; i++) {
+          const wrappedZ = ((i * STRATUM_GAP - (planeCamZ % STRATUM_GAP)) + STRATUM_GAP * 2) % (STRATUM_GAP * 3) - STRATUM_GAP * 0.5;
+          const depth = FOCAL + wrappedZ;
+          if (depth < 110) continue;
+
+          const proj = FOCAL / depth;
+          const spacing = baseSpacing * proj;
+          if (spacing < 22 || spacing > 380) continue;
+
+          let alpha = 1;
+          if (wrappedZ < 80) alpha = clamp((wrappedZ + 220) / 300, 0, 1);
+          if (wrappedZ > 540) alpha = clamp(1 - (wrappedZ - 540) / 520, 0, 1);
+
+          const isFlying = zFlight !== null;
+          const strataWeight = isFlying ? 0.85 : (Math.abs(wrappedZ) < 190 ? 1.0 : 0.24);
+          const finalAlpha = alpha * strataWeight;
+          if (finalAlpha <= 0.01) continue;
+
+          const panX = p.camX * 0.55 * scale * proj;
+          const panY = p.camY * 0.55 * scale * proj;
+          const startX = ((cx - panX) % spacing + spacing) % spacing;
+          const startY = ((cy - panY) % spacing + spacing) % spacing;
+
+          const r = Math.round(236 + (152 - 236) * zProgress);
+          const g = Math.round(233 + (192 - 233) * zProgress);
+          const b = Math.round(226 + (236 - 226) * zProgress);
+
+          gctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${(0.036 * finalAlpha).toFixed(4)})`;
+          gctx.lineWidth = 1;
+          gctx.beginPath();
+          for (let x = startX; x < W; x += spacing) {
+            gctx.moveTo(x, 0);
+            gctx.lineTo(x, H);
           }
+          for (let y = startY; y < H; y += spacing) {
+            gctx.moveTo(0, y);
+            gctx.lineTo(W, y);
+          }
+          gctx.stroke();
+
+          gctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${(0.095 * finalAlpha).toFixed(4)})`;
+          gctx.beginPath();
+          for (let x = startX; x < W; x += spacing * 2) {
+            for (let y = startY; y < H; y += spacing * 2) {
+              gctx.moveTo(x - 3, y);
+              gctx.lineTo(x + 3, y);
+              gctx.moveTo(x, y - 3);
+              gctx.lineTo(x, y + 3);
+            }
+          }
+          gctx.stroke();
         }
-        gctx.stroke();
 
         if (
           hasPointer &&
@@ -2207,12 +3480,12 @@
           driftEnabled &&
           !pointerOverHUD &&
           !activeModuleKey &&
+          !folioOpen &&
+          !zFlight &&
           !lightbox.classList.contains('open') &&
           dist > 0.28
         ) {
           const strength = clamp((dist - 0.28) / 0.72, 0, 1);
-          const cx = W * 0.5;
-          const cy = H * 0.5;
           const ang = Math.atan2(pointerY - cy, pointerX - cx);
           const startR = 36;
           const endR = Math.min(Math.hypot(pointerX - cx, pointerY - cy) - 24, 240);
@@ -2234,14 +3507,288 @@
       }
 
       // =====================================================
-      // MAIN 60FPS CAMERA & STEERING LOOP
+      // FREE-FLOATING 6-DOF PHYSICS & NON-OVERLAP ENGINE
+      // Every card drifts & rotates freely inside its own
+      // invisible boundary cell—never reverting to a fixed angle.
+      // =====================================================
+      function projectPlane(plane, planeEl, timeSec, dt, nx, ny) {
+        const zFromPlane = planeCamZ - plane.baseZ;
+
+        if (zFromPlane > 1020 || zFromPlane < -1220) {
+          planeEl.style.visibility = 'hidden';
+          return;
+        }
+
+        planeEl.style.visibility = 'visible';
+
+        const flightFactor = clamp(Math.abs(zFromPlane) / 360, 0, 1);
+
+        if (plane.id === 1 && connectorsEl) {
+          const cAlpha = clamp(0.32 * (1 - clamp(zFromPlane / 360, 0, 1)), 0, 0.32);
+          connectorsEl.style.opacity = cAlpha.toFixed(3);
+        }
+
+        const isCurrentPlane = plane.id === activeLayer && !zFlight;
+        const step = Math.min(dt, 0.033);
+
+        // Camera acceleration imparts real physical impulse to floating cards
+        const accX = plane.velX - plane.prevVelX;
+        const accY = plane.velY - plane.prevVelY;
+
+        // 1. INTEGRATE FREE-FLOATING LINEAR & ANGULAR PHYSICS PER CARD
+        for (const item of plane.nodes) {
+          const targetHover = (isCurrentPlane && item.hovered && !activeModuleKey) ? 1 : 0;
+          item.hoverAmt += (targetHover - item.hoverAmt) * 0.14;
+
+          if (targetHover > 0.5) {
+            // While hovered: gently steady the card so it's effortless to read/click
+            item.vx *= Math.pow(0.06, step);
+            item.vy *= Math.pow(0.06, step);
+            item.vz *= Math.pow(0.06, step);
+            item.vrx *= Math.pow(0.04, step);
+            item.vry *= Math.pow(0.04, step);
+            item.vrz *= Math.pow(0.04, step);
+            item.rx += (0 - item.rx) * 0.14;
+            item.ry += (0 - item.ry) * 0.14;
+            item.rz += (0 - item.rz) * 0.14;
+          } else {
+            // FREE-FLOATING STATE (zero fixed home angle, zero fixed center spring!)
+            // Slowly evolving organic buoyancy forces
+            item.wanderAngle += (Math.random() - 0.5) * 1.9 * step;
+            item.wanderZ = clamp(item.wanderZ + (Math.random() - 0.5) * 1.4 * step, -1, 1);
+
+            const driftAccel = 11.5 / item.mass;
+            item.vx += Math.cos(item.wanderAngle) * driftAccel * step;
+            item.vy += Math.sin(item.wanderAngle) * driftAccel * step;
+            item.vz += item.wanderZ * (14.0 / item.mass) * step;
+
+            // Camera inertia: accelerating/scrolling the camera nudges cards & imparts slight spin
+            const depthRatio = clamp(1 - item.z / 320, 0.6, 1.4);
+            item.vx += clamp(-accX * 4.2 * depthRatio / item.mass, -18, 18);
+            item.vy += clamp(-accY * 4.2 * depthRatio / item.mass, -18, 18);
+            item.vry += clamp(-accX * 0.45 / item.mass, -2.5, 2.5);
+            item.vrx += clamp(accY * 0.45 / item.mass, -2.5, 2.5);
+
+            // Smooth wandering rotational torque (continuously shifts card's 3D orientation)
+            item.torqueX = clamp(item.torqueX + (Math.random() - 0.5) * 3.2 * step, -2.4, 2.4);
+            item.torqueY = clamp(item.torqueY + (Math.random() - 0.5) * 3.8 * step, -3.0, 3.0);
+            item.torqueZ = clamp(item.torqueZ + (Math.random() - 0.5) * 1.5 * step, -1.2, 1.2);
+
+            item.vrx += (item.torqueX / item.mass) * step;
+            item.vry += (item.torqueY / item.mass) * step;
+            item.vrz += (item.torqueZ / item.mass) * step;
+
+            // Soft fluid drag (prevents runaway speed while preserving silky free drift)
+            const linDrag = Math.pow(0.62, step);
+            const angDrag = Math.pow(0.58, step);
+            item.vx *= linDrag;
+            item.vy *= linDrag;
+            item.vz *= linDrag;
+            item.vrx *= angDrag;
+            item.vry *= angDrag;
+            item.vrz *= angDrag;
+
+            // Clamp max velocities for calm, grounded zero-G feel
+            item.vx = clamp(item.vx, -26, 26);
+            item.vy = clamp(item.vy, -26, 26);
+            item.vz = clamp(item.vz, -24, 24);
+            item.vrx = clamp(item.vrx, -5.5, 5.5);
+            item.vry = clamp(item.vry, -6.5, 6.5);
+            item.vrz = clamp(item.vrz, -2.5, 2.5);
+
+            // Integrate position & orientation
+            item.x += item.vx * step;
+            item.y += item.vy * step;
+            item.z += item.vz * step;
+            item.rx += item.vrx * step;
+            item.ry += item.vry * step;
+            item.rz += item.vrz * step;
+
+            // SOFT INVISIBLE BOUNDARIES (position):
+            // Gently cushion & deflect velocity near cell edge—never pulls back to center!
+            if (item.x < item.minX) {
+              item.x = item.minX;
+              item.vx = Math.abs(item.vx) * 0.65 + 4;
+              item.vry += 0.8;
+              item.wanderAngle = (Math.random() - 0.5) * 1.2;
+            } else if (item.x > item.maxX) {
+              item.x = item.maxX;
+              item.vx = -Math.abs(item.vx) * 0.65 - 4;
+              item.vry -= 0.8;
+              item.wanderAngle = Math.PI + (Math.random() - 0.5) * 1.2;
+            }
+
+            if (item.y < item.minY) {
+              item.y = item.minY;
+              item.vy = Math.abs(item.vy) * 0.65 + 4;
+              item.vrx -= 0.7;
+              item.wanderAngle = Math.PI * 0.5 + (Math.random() - 0.5) * 1.2;
+            } else if (item.y > item.maxY) {
+              item.y = item.maxY;
+              item.vy = -Math.abs(item.vy) * 0.65 - 4;
+              item.vrx += 0.7;
+              item.wanderAngle = -Math.PI * 0.5 + (Math.random() - 0.5) * 1.2;
+            }
+
+            if (item.z < item.minZ) {
+              item.z = item.minZ;
+              item.vz = Math.abs(item.vz) * 0.6 + 4;
+              item.wanderZ = Math.abs(item.wanderZ) * 0.6 + 0.2;
+            } else if (item.z > item.maxZ) {
+              item.z = item.maxZ;
+              item.vz = -Math.abs(item.vz) * 0.6 - 4;
+              item.wanderZ = -Math.abs(item.wanderZ) * 0.6 - 0.2;
+            }
+
+            // SOFT ANGULAR LIMITS (keeps cards readable while completely free-floating):
+            if (item.rx < -item.maxRx) {
+              item.rx = -item.maxRx;
+              item.vrx = Math.abs(item.vrx) * 0.55 + 0.5;
+              item.torqueX = Math.abs(item.torqueX);
+            } else if (item.rx > item.maxRx) {
+              item.rx = item.maxRx;
+              item.vrx = -Math.abs(item.vrx) * 0.55 - 0.5;
+              item.torqueX = -Math.abs(item.torqueX);
+            }
+
+            if (item.ry < -item.maxRy) {
+              item.ry = -item.maxRy;
+              item.vry = Math.abs(item.vry) * 0.55 + 0.6;
+              item.torqueY = Math.abs(item.torqueY);
+            } else if (item.ry > item.maxRy) {
+              item.ry = item.maxRy;
+              item.vry = -Math.abs(item.vry) * 0.55 - 0.6;
+              item.torqueY = -Math.abs(item.torqueY);
+            }
+
+            if (item.rz < -item.maxRz) {
+              item.rz = -item.maxRz;
+              item.vrz = Math.abs(item.vrz) * 0.55 + 0.25;
+              item.torqueZ = Math.abs(item.torqueZ);
+            } else if (item.rz > item.maxRz) {
+              item.rz = item.maxRz;
+              item.vrz = -Math.abs(item.vrz) * 0.55 - 0.25;
+              item.torqueZ = -Math.abs(item.torqueZ);
+            }
+          }
+        }
+
+        // 2. SOFT PAIRWISE NON-OVERLAP GUARDRAIL
+        // Even with perspective & free roam, if any two cards approach within 24px,
+        // gently separate them so they never collide or overlap on screen.
+        const MIN_SEP = 24;
+        const nodes = plane.nodes;
+        for (let i = 0; i < nodes.length; i++) {
+          const a = nodes[i];
+          const aw = a.el.offsetWidth;
+          const ah = a.el.offsetHeight || 280;
+          const acx = a.el.offsetLeft + aw * 0.5 + a.x;
+          const acy = a.el.offsetTop + ah * 0.5 + a.y;
+
+          for (let j = i + 1; j < nodes.length; j++) {
+            const b = nodes[j];
+            const bw = b.el.offsetWidth;
+            const bh = b.el.offsetHeight || 280;
+            const bcx = b.el.offsetLeft + bw * 0.5 + b.x;
+            const bcy = b.el.offsetTop + bh * 0.5 + b.y;
+
+            const overlapX = (aw + bw) * 0.5 + MIN_SEP - Math.abs(acx - bcx);
+            const overlapY = (ah + bh) * 0.5 + MIN_SEP - Math.abs(acy - bcy);
+
+            if (overlapX > 0 && overlapY > 0) {
+              if (overlapX < overlapY) {
+                const sign = acx < bcx ? -1 : 1;
+                const push = overlapX * 0.5;
+                if (!a.hovered) { a.x += sign * push; a.vx += sign * 6; }
+                if (!b.hovered) { b.x -= sign * push; b.vx -= sign * 6; }
+              } else {
+                const sign = acy < bcy ? -1 : 1;
+                const push = overlapY * 0.5;
+                if (!a.hovered) { a.y += sign * push; a.vy += sign * 6; }
+                if (!b.hovered) { b.y -= sign * push; b.vy -= sign * 6; }
+              }
+            }
+          }
+        }
+
+        // 3. APPLY 3D PERSPECTIVE PROJECTION & OPTICAL DEPTH-OF-FIELD BLUR
+        for (const item of nodes) {
+          const el = item.el;
+          const cx = el.offsetLeft + el.offsetWidth * 0.5 + item.x;
+          const cy = el.offsetTop + el.offsetHeight * 0.5 + item.y;
+          const dx = cx - plane.camX;
+          const dy = cy - plane.camY;
+          const distFromCenter = Math.hypot(dx, dy);
+          const centerFocus = clamp(1 - (distFromCenter - 170) / 560, 0, 1);
+          const focusStrength = Math.max(item.hoverAmt, centerFocus * 0.78);
+
+          // Live card Z combines its free-floating Z with cross-layer flight spread
+          const cardZOff = item.z + (item.flightZ - item.z) * flightFactor;
+          const cardZ = plane.baseZ + cardZOff;
+          const relZ = cardZ - planeCamZ;
+          const depth = FOCAL + relZ;
+
+          if (depth <= 85) {
+            el.style.opacity = '0';
+            continue;
+          }
+
+          const proj = FOCAL / depth;
+          const shiftX = item.x + dx * (proj - 1);
+          const shiftY = item.y + dy * (proj - 1);
+
+          let targetBlur = 0;
+          let opacity = 1;
+
+          if (flightFactor > 0.05) {
+            if (proj > 1.32) {
+              const passRatio = clamp((proj - 1.32) / 1.25, 0, 1);
+              opacity = clamp(1 - passRatio, 0, 1);
+              targetBlur = passRatio * 9;
+            } else if (proj < 0.74) {
+              const farRatio = clamp((0.74 - proj) / 0.38, 0, 1);
+              opacity = clamp(1 - farRatio, 0, 1);
+              targetBlur = farRatio * 10;
+            }
+          } else {
+            // Optical depth-of-field tracks the card's live floating Z depth
+            const zBlur = (Math.abs(item.z) / 95) * 2.1;
+            const peripheryBlur = clamp((distFromCenter - 440) / 680, 0, 1) * 1.1;
+            targetBlur = (zBlur + peripheryBlur) * (1 - focusStrength);
+            opacity = clamp(1 - (Math.max(0, item.z) / 420) * (1 - focusStrength), 0.75, 1);
+          }
+
+          item.curBlur += (targetBlur - item.curBlur) * 0.12;
+
+          el.style.transform =
+            `perspective(950px) translate3d(${shiftX.toFixed(1)}px, ${shiftY.toFixed(1)}px, 0) ` +
+            `rotateX(${item.rx.toFixed(2)}deg) rotateY(${item.ry.toFixed(2)}deg) rotateZ(${item.rz.toFixed(2)}deg) ` +
+            `scale(${proj.toFixed(3)})`;
+          el.style.opacity = opacity.toFixed(3);
+          el.style.filter = item.curBlur > 0.15 ? `blur(${item.curBlur.toFixed(2)}px)` : '';
+        }
+      }
+
+      // =====================================================
+      // MAIN 60FPS MULTIPLANE LOOP
       // =====================================================
       let lastTime = performance.now();
 
       function tick(now) {
         const dt = Math.min((now - lastTime) / 1000, 0.05);
         lastTime = now;
+        const timeSec = now * 0.001;
 
+        if (zFlight) {
+          const t = clamp((now - zFlight.start) / zFlight.duration, 0, 1);
+          planeCamZ = zFlight.fromZ + (zFlight.toZ - zFlight.fromZ) * easeInOutCubic(t);
+          if (t >= 1) {
+            planeCamZ = zFlight.toZ;
+            zFlight = null;
+          }
+        }
+
+        const p = getPlane();
         const nx = (pointerX - W * 0.5) / (W * 0.5 || 1);
         const ny = (pointerY - H * 0.5) / (H * 0.5 || 1);
         const dist = Math.hypot(nx, ny);
@@ -2255,25 +3802,43 @@
           !isDragging &&
           !mmDragging &&
           !activeModuleKey &&
+          !folioOpen &&
+          !zFlight &&
           !lightbox.classList.contains('open') &&
           dist > DEADZONE
         ) {
           const excess = clamp((dist - DEADZONE) / (1.0 - DEADZONE), 0, 1);
           const speed = Math.pow(excess, 1.75) * (410 / scale) * dt;
-          targetX += (nx / dist) * speed;
-          targetY += (ny / dist) * speed;
-          clampTarget();
+          p.targetX += (nx / dist) * speed;
+          p.targetY += (ny / dist) * speed;
+          clampTarget(p);
         }
 
         const lerp = isDragging ? 0.32 : 0.095;
-        camX += (targetX - camX) * lerp;
-        camY += (targetY - camY) * lerp;
+        for (const key of [1, 2, 3]) {
+          const pl = PLANES[key];
+          const prevX = pl.camX;
+          const prevY = pl.camY;
+          pl.camX += (pl.targetX - pl.camX) * lerp;
+          pl.camY += (pl.targetY - pl.camY) * lerp;
+          pl.prevVelX = pl.velX;
+          pl.prevVelY = pl.velY;
+          pl.velX = pl.camX - prevX;
+          pl.velY = pl.camY - prevY;
 
-        const tx = W * 0.5 - camX * scale;
-        const ty = H * 0.5 - camY * scale;
-        worldScaleEl.style.transform = `translate3d(${tx.toFixed(1)}px, ${ty.toFixed(1)}px, 0) scale(${scale})`;
+          const tx = W * 0.5 - pl.camX * scale;
+          const ty = H * 0.5 - pl.camY * scale;
+          pl.scaleEl.style.transform = `translate3d(${tx.toFixed(1)}px, ${ty.toFixed(1)}px, 0) scale(${scale})`;
+        }
 
-        coordReadout.textContent = `${Math.round(camX)}, ${Math.round(camY)}`;
+        const zProgress = clamp(planeCamZ / Z_PLANE_2, 0, 1);
+        l2Atmosphere.style.opacity = Math.pow(zProgress, 1.4).toFixed(3);
+
+        projectPlane(PLANES[1], plane1El, timeSec, dt, nx, ny);
+        projectPlane(PLANES[2], plane2El, timeSec, dt, nx, ny);
+        projectPlane(PLANES[3], plane3El, timeSec, dt, nx, ny);
+
+        coordReadout.textContent = `${Math.round(p.camX)}, ${Math.round(p.camY)}`;
 
         const cd = Math.min(dist, 1);
         const cxOff = dist > 0.01 ? (nx / dist) * cd * 6 : 0;
@@ -2282,34 +3847,48 @@
 
         const mw = minimap.clientWidth;
         const mh = minimap.clientHeight;
-        const viewW = (W / scale) / WORLD_W * mw;
-        const viewH = (H / scale) / WORLD_H * mh;
-        const viewX = ((camX - (W / scale) * 0.5) / WORLD_W) * mw;
-        const viewY = ((camY - (H / scale) * 0.5) / WORLD_H) * mh;
+        const viewW = (W / scale) / p.w * mw;
+        const viewH = (H / scale) / p.h * mh;
+        const viewX = ((p.camX - (W / scale) * 0.5) / p.w) * mw;
+        const viewY = ((p.camY - (H / scale) * 0.5) / p.h) * mh;
         mmView.style.width = clamp(viewW, 12, mw) + 'px';
         mmView.style.height = clamp(viewH, 12, mh) + 'px';
         mmView.style.transform = `translate3d(${clamp(viewX, 0, mw - viewW).toFixed(1)}px, ${clamp(viewY, 0, mh - viewH).toFixed(1)}px, 0)`;
 
-        let closestId = 'node-hero';
+        let closestId = p.heroId;
         let bestDist = Infinity;
-        for (const el of nodeEls) {
+        for (const { el } of p.nodes) {
           const cx = el.offsetLeft + el.offsetWidth * 0.5;
           const cy = el.offsetTop + el.offsetHeight * 0.5;
-          const d = Math.hypot(cx - camX, cy - camY);
+          const d = Math.hypot(cx - p.camX, cy - p.camY);
           if (d < bestDist) {
             bestDist = d;
             closestId = el.id;
           }
         }
-        navButtons.forEach(b => b.classList.toggle('active', b.dataset.target === closestId));
+        navButtons.forEach(b => {
+          if (Number(b.dataset.plane) === activeLayer) {
+            b.classList.toggle('active', b.dataset.target === closestId);
+          }
+        });
 
-        drawBackgroundGrid(nx, ny, dist);
+        drawBackgroundGrid(p, nx, ny, dist);
         requestAnimationFrame(tick);
       }
 
       window.addEventListener('resize', resize);
-      window.addEventListener('load', buildMinimapNodes);
+      window.addEventListener('load', () => {
+        computeInvisibleBounds(PLANES[1]);
+        computeInvisibleBounds(PLANES[2]);
+        computeInvisibleBounds(PLANES[3]);
+        buildMinimapNodes();
+      });
       resize();
+      if (window.location.hash === '#windows') {
+        flyToLayer(3, true);
+      } else if (window.location.hash === '#learn-more' || window.location.hash === '#horizon') {
+        flyToLayer(2, true);
+      }
       requestAnimationFrame(tick);
     })();
   </script>
