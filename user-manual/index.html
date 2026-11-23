@@ -1,0 +1,1885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TwoD Studio User Manual — 2D &amp; 2.5D Animation, Rigging &amp; Mesh Guide</title>
+  <meta name="description" content="Official TwoD Studio user manual covering 2D skeletal rigging, Universal Transform Gizmo, Smart Bone dials, Vitruvian sub-rigs, alpha-aware Contour Fit 2.5D meshes, clipping masks, spline chains, Glass Plate Shader FX chips, perspective walking paths, 2-channel audio, and local MP4/PNG ZIP export." />
+  <link rel="canonical" href="https://wickeddarko.github.io/TwoD-Studio/user-manual/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="TwoD Studio User Manual — 2D &amp; 2.5D Animation Suite Guide" />
+  <meta property="og:description" content="Complete reference for skeletal rigging, Smart Bone dials, alpha-aware Contour Fit 2.5D meshes, Glass Plate Shader FX, perspective walking paths, 2-track audio mixing, and offline MP4/PNG export in TwoD Studio." />
+  <meta property="og:url" content="https://wickeddarko.github.io/TwoD-Studio/user-manual/" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="TwoD Studio User Manual — 2D &amp; 2.5D Animation Guide" />
+  <meta name="twitter:description" content="Complete operating guide and asset preparation reference for TwoD Studio." />
+  <link rel="icon" type="image/png" href="../twod_icon_no_bg.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "TwoD Studio User Manual — Complete 2D & 2.5D Animation, Rigging & Mesh Guide",
+    "description": "Official documentation for TwoD Studio covering workspace modes, Universal Gizmo, Smart Bone dials, Vitruvian sub-rigs, alpha-aware Contour Fit 2.5D meshes, clipping masks, spline chains, Glass Plate Shader FX chips, perspective walking trajectories, 2-channel audio mixing, and local MP4/PNG ZIP export.",
+    "url": "https://wickeddarko.github.io/TwoD-Studio/user-manual/",
+    "author": {
+      "@type": "Person",
+      "name": "WickedDarko"
+    },
+    "about": {
+      "@type": "SoftwareApplication",
+      "name": "TwoD Studio",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "Android, Windows"
+    }
+  }
+  </script>
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #07080b;
+      --bg-index: #0a0c12;
+      --surface: #0e1118;
+      --surface-hi: #141924;
+      --ink: #ece9e2;
+      --ink-body: #a8a69f;
+      --ink-dim: #666560;
+      --accent: #8ab4e0;
+      --accent-soft: rgba(138, 180, 224, 0.14);
+      --cyan: #76c4dc;
+      --mint: #6ec49e;
+      --rose: #d47b88;
+      --line: rgba(236, 233, 226, 0.08);
+      --line-strong: rgba(236, 233, 226, 0.16);
+      --display: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 15px;
+      line-height: 1.72;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar,
+    .index-tree::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+
+    /* Subtle translucent reading-position indicator (replaces native scrollbar) */
+    .scroll-rail {
+      position: fixed;
+      top: 50%;
+      right: 11px;
+      transform: translateY(-50%);
+      width: 3px;
+      height: min(168px, 28vh);
+      border-radius: 999px;
+      background: rgba(236, 233, 226, 0.06);
+      pointer-events: none;
+      z-index: 60;
+      opacity: 0.32;
+      transition: opacity 0.4s ease;
+    }
+
+    body.is-scrolling .scroll-rail {
+      opacity: 0.92;
+    }
+
+    .scroll-thumb {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 28px;
+      border-radius: 999px;
+      background: rgba(138, 180, 224, 0.56);
+      box-shadow: 0 0 10px rgba(138, 180, 224, 0.28);
+      will-change: transform, height;
+    }
+
+    body {
+      background:
+        radial-gradient(ellipse 60% 45% at 65% 8%, rgba(138, 180, 224, 0.06), transparent 70%),
+        var(--bg);
+      color: var(--ink);
+      display: flex;
+      min-height: 100vh;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    /* Subtle folio spine shading when embedded inside the Layer 2 spread */
+    body.embedded-spread .manual-index {
+      box-shadow: inset -18px 0 28px -18px rgba(0, 0, 0, 0.72);
+      border-right-color: rgba(138, 180, 224, 0.14);
+    }
+
+    body.embedded-spread .manual-body {
+      box-shadow: inset 18px 0 32px -20px rgba(0, 0, 0, 0.65);
+    }
+
+    body.embedded-spread .back-studio-link {
+      display: none;
+    }
+
+    /* ── Persistent Left Manual Index (Sole Navigation) ────────────────────── */
+    .manual-index {
+      width: 272px;
+      min-width: 272px;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      background: var(--bg-index);
+      border-right: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      padding: 26px 22px;
+      z-index: 50;
+    }
+
+    .index-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+      text-decoration: none;
+      color: var(--ink);
+    }
+
+    .brand-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px rgba(138, 180, 224, 0.6);
+      flex-shrink: 0;
+    }
+
+    .index-brand-title {
+      font-family: var(--display);
+      font-size: 15.5px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .index-brand-ver {
+      font-family: var(--sans);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--accent);
+      margin-left: auto;
+    }
+
+    .index-search {
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .index-search input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--line-strong);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 13px;
+      padding: 6px 0;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .index-search input::placeholder {
+      color: var(--ink-dim);
+    }
+
+    .index-search input:focus {
+      border-color: var(--accent);
+    }
+
+    .index-tree {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 0;
+      scrollbar-width: none;
+    }
+
+    .index-tree::-webkit-scrollbar {
+      display: none;
+    }
+
+    .index-part {
+      font-family: var(--sans);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--ink-dim);
+      margin: 18px 0 7px;
+    }
+
+    .index-part:first-child {
+      margin-top: 2px;
+    }
+
+    .index-link {
+      display: block;
+      padding: 5px 0 5px 13px;
+      border-left: 1px solid var(--line);
+      color: var(--ink-body);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 400;
+      transition: color 0.18s ease, border-color 0.18s ease;
+    }
+
+    .index-link:hover {
+      color: var(--ink);
+      border-left-color: var(--ink-body);
+    }
+
+    .index-link.active {
+      color: var(--accent);
+      border-left: 2px solid var(--accent);
+      font-weight: 500;
+    }
+
+    .index-footer {
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .back-studio-link {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-body);
+      text-decoration: none;
+      transition: color 0.18s ease;
+    }
+
+    .back-studio-link:hover {
+      color: var(--ink);
+    }
+
+    .print-link {
+      background: none;
+      border: none;
+      color: var(--accent);
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .print-link:hover {
+      text-decoration: underline;
+    }
+
+    /* ── Main Manual Body (No Redundant Top Bar) ───────────────────────────── */
+    .manual-body {
+      flex: 1;
+      max-width: 1020px;
+      padding: 52px 58px 110px;
+      margin: 0 auto;
+    }
+
+    /* ── Manual Title Header ───────────────────────────────────────────────── */
+    .manual-intro {
+      padding-bottom: 42px;
+      border-bottom: 1px solid var(--line-strong);
+      margin-bottom: 56px;
+    }
+
+    .manual-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--accent);
+      margin-bottom: 14px;
+    }
+
+    .manual-intro h1 {
+      font-family: var(--display);
+      font-size: clamp(32px, 3.8vw, 46px);
+      font-weight: 600;
+      line-height: 1.08;
+      letter-spacing: -0.035em;
+      color: var(--ink);
+      margin-bottom: 16px;
+    }
+
+    .manual-intro p {
+      color: var(--ink-body);
+      font-size: 15.5px;
+      max-width: 780px;
+      font-weight: 400;
+      line-height: 1.72;
+    }
+
+    /* ── Manual Sections ───────────────────────────────────────────────────── */
+    .guide-section {
+      padding-bottom: 64px;
+      margin-bottom: 64px;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 32px;
+    }
+
+    .section-eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .section-eyebrow span {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+
+    .section-rule {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(138, 180, 224, 0.25), rgba(236, 233, 226, 0.04));
+    }
+
+    .guide-section h2 {
+      font-family: var(--display);
+      font-size: clamp(25px, 2.8vw, 34px);
+      font-weight: 600;
+      line-height: 1.16;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+      margin-bottom: 18px;
+    }
+
+    .guide-section h3 {
+      font-family: var(--display);
+      font-size: 19px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      margin: 38px 0 12px;
+      scroll-margin-top: 32px;
+    }
+
+    .guide-section p {
+      color: var(--ink-body);
+      margin-bottom: 15px;
+      max-width: 800px;
+      font-weight: 400;
+    }
+
+    .guide-section p strong {
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    .ui-key {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      color: var(--accent);
+    }
+
+    .ui-path {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      color: var(--cyan);
+    }
+
+    /* ── Spec Grids & Reference Tables ─────────────────────────────────────── */
+    .two-col-spec,
+    .spec-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 34px 44px;
+      margin: 26px 0;
+      padding: 24px 0;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .three-col-spec {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      margin: 26px 0;
+      padding: 24px 0;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .spec-item-label {
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    .spec-item h4 {
+      font-family: var(--display);
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: -0.015em;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+
+    .spec-item p {
+      font-size: 14px;
+      margin-bottom: 0;
+      line-height: 1.65;
+    }
+
+    .ref-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 18px 0 30px;
+      font-size: 13.5px;
+    }
+
+    .ref-table th {
+      text-align: left;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--ink-dim);
+      padding: 11px 14px 11px 0;
+      border-bottom: 1px solid var(--line-strong);
+    }
+
+    .ref-table td {
+      padding: 12px 14px 12px 0;
+      color: var(--ink-body);
+      font-weight: 400;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      line-height: 1.6;
+    }
+
+    .ref-table td strong {
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    .callout-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px 40px;
+      margin: 22px 0;
+    }
+
+    .callout-row {
+      display: flex;
+      gap: 14px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .callout-num {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--accent);
+      min-width: 24px;
+      padding-top: 2px;
+    }
+
+    .callout-text {
+      font-size: 14px;
+      color: var(--ink-body);
+    }
+
+    .callout-text strong {
+      color: var(--ink);
+      font-weight: 500;
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .procedure {
+      margin: 22px 0 34px;
+      border-left: 1px solid var(--line-strong);
+      padding-left: 26px;
+    }
+
+    .proc-step {
+      position: relative;
+      padding-bottom: 20px;
+    }
+
+    .proc-step:last-child {
+      padding-bottom: 0;
+    }
+
+    .proc-step::before {
+      content: "";
+      position: absolute;
+      left: -30px;
+      top: 8px;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .proc-step-title {
+      font-family: var(--display);
+      font-size: 15.5px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+
+    .proc-step p {
+      font-size: 14px;
+      margin-bottom: 0;
+    }
+
+    .diagram-stage {
+      margin: 28px 0;
+      padding: 18px 20px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(16, 20, 30, 0.65) 0%, rgba(10, 12, 18, 0.8) 100%);
+      border: 1px solid var(--line);
+    }
+
+    .diagram-stage svg,
+    .diagram-stage canvas {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .diagram-caption {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      font-size: 12px;
+      color: var(--ink-dim);
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+      margin-top: 12px;
+    }
+
+    .diagram-caption span:first-child {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .underline-tabs {
+      display: flex;
+      gap: 26px;
+      border-bottom: 1px solid var(--line-strong);
+      margin: 26px 0 22px;
+      flex-wrap: wrap;
+    }
+
+    .u-tab {
+      background: none;
+      border: none;
+      outline: none;
+      padding: 0 0 11px;
+      font-family: var(--display);
+      font-size: 14.5px;
+      font-weight: 600;
+      color: var(--ink-dim);
+      cursor: pointer;
+      position: relative;
+      transition: color 0.18s ease;
+    }
+
+    .u-tab:hover { color: var(--ink-body); }
+    .u-tab.active { color: var(--ink); }
+    .u-tab.active::after {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; bottom: -1px;
+      height: 2px;
+      background: var(--accent);
+    }
+
+    .u-pane { display: none; }
+    .u-pane.active { display: block; }
+
+    @media print {
+      .manual-index, .scroll-rail { display: none !important; }
+      .manual-body { max-width: 100% !important; padding: 16px !important; }
+      .u-pane { display: block !important; margin-bottom: 28px; }
+    }
+
+    @media (max-width: 960px) {
+      body { flex-direction: column; }
+      .manual-index { width: 100%; height: auto; position: relative; }
+      .manual-body { padding: 32px 20px 80px; }
+      .scroll-rail { right: 6px; }
+      .two-col-spec, .three-col-spec, .callout-grid, .spec-grid { grid-template-columns: 1fr; gap: 22px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       LEFT ARCHITECTURAL TABLE OF CONTENTS (PRIMARY NAVIGATION)
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <aside class="manual-index" aria-label="User Manual Navigation">
+    <a href="#" class="index-brand">
+      <span class="brand-dot" aria-hidden="true"></span>
+      <span class="index-brand-title">TwoD Studio</span>
+      <span class="index-brand-ver">Manual</span>
+    </a>
+
+    <div class="index-search">
+      <input
+        type="text"
+        aria-label="Filter manual topics"
+        placeholder="Filter topics..."
+        oninput="filterManualSections(this.value)"
+      />
+    </div>
+
+    <nav class="index-tree" id="tocTree" aria-label="Manual sections">
+      <div class="index-part">Part I · The Workspace</div>
+      <a class="index-link active" href="#sec-interface">1.1 Interface Map &amp; Safe Locks</a>
+      <a class="index-link" href="#sec-modes">1.2 Setup, Animate &amp; Pro Modes</a>
+      <a class="index-link" href="#sec-tools">1.3 Universal Gizmo &amp; Stage Tools</a>
+
+      <div class="index-part">Part II · Creating Assets</div>
+      <a class="index-link" href="#sec-art-rules">2.1 Upright Art &amp; Rounded Joints</a>
+      <a class="index-link" href="#sec-rigs">2.2 6 Preset Rigs &amp; Custom Skeletons</a>
+      <a class="index-link" href="#sec-zip">2.3 .ZIP Bundles &amp; Head Modes</a>
+      <a class="index-link" href="#sec-library">2.4 Studio Library &amp; Folders</a>
+
+      <div class="index-part">Part III · Rigging &amp; Control</div>
+      <a class="index-link" href="#sec-fk-ik">3.1 FK, 2-Bone IK &amp; Bend Safety</a>
+      <a class="index-link" href="#sec-smart-bones">3.2 Smart Bone Dials &amp; Sprite Actions</a>
+      <a class="index-link" href="#sec-subrigs">3.3 Sub-Rig Studio &amp; Vitruvian Swaps</a>
+      <a class="index-link" href="#sec-springs">3.4 Spline Chains, Springs &amp; Layering</a>
+
+      <div class="index-part">Part IV · 2.5D &amp; Choreography</div>
+      <a class="index-link" href="#sec-mesh">4.1 Contour Fit 2.5D Mesh &amp; Masks</a>
+      <a class="index-link" href="#sec-trajectory">4.2 Walking Paths &amp; Multiplane Depth</a>
+      <a class="index-link" href="#sec-timeline">4.3 Timeline, Cycles &amp; Tween Span</a>
+
+      <div class="index-part">Part V · Directing, FX &amp; Export</div>
+      <a class="index-link" href="#sec-shader-fx">5.1 Glass Plate Shader FX Chips</a>
+      <a class="index-link" href="#sec-pro">5.2 Camera, Time &amp; Dynamic Attach</a>
+      <a class="index-link" href="#sec-paint">5.3 Sprite Paint, Smart Lasso &amp; Cels</a>
+      <a class="index-link" href="#sec-audio">5.4 2-Track Audio &amp; Viseme Lip-Sync</a>
+      <a class="index-link" href="#sec-export">5.5 Exporting MP4, PNG ZIP &amp; Continuity</a>
+    </nav>
+
+    <div class="index-footer">
+      <a class="back-studio-link" href="../">← Studio</a>
+      <button class="print-link" onclick="window.print()">Print / PDF</button>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       MAIN USER MANUAL CONTENT
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <main class="manual-body">
+
+    <header class="manual-intro">
+      <div class="manual-kicker">
+        <span class="brand-dot" aria-hidden="true"></span>
+        <span>TwoD Studio Official Documentation · Android v1.6.2 (Build 29) &amp; Desktop Reference</span>
+      </div>
+      <h1>Complete Operating Guide &amp; 2D/2.5D Animation Reference</h1>
+      <p>
+        This manual documents every workspace panel, stage tool, cutout artwork rule, and animation pipeline in TwoD Studio—an offline 2D and 2.5D skeletal animation suite. Use it as a practical reference for building custom or preset bone rigs, authoring Smart Bone action dials and Vitruvian sub-rigs, sculpting alpha-aware Contour Fit 2.5D meshes and clipping masks, layering non-destructive Glass Plate Shader FX chips, directing perspective walking paths, mixing 2-channel audio, and exporting finished MP4 video or transparent PNG sequences.
+      </p>
+    </header>
+
+    <!-- ═════════════════════════════════════════════════════════════════════
+         PART I: WORKSPACE, SAFE LOCKS & UNIVERSAL GIZMO
+         ═════════════════════════════════════════════════════════════════════ -->
+    <article class="guide-section" id="sec-interface">
+      <div class="section-eyebrow">
+        <span>Section 1.1 · Workspace Anatomy</span>
+        <div class="section-rule"></div>
+      </div>
+      <h2>Studio Interface Map, Collapsible HUD &amp; Safe Frame Locking</h2>
+      <p>
+        TwoD Studio is organized around a central animation stage surrounded by collapsible panels and an unobstructed stage HUD. Both floating stage bars (<span class="ui-key">View Bar</span> and <span class="ui-key">Tools Bar</span>) feature a leftmost collapse button to tuck into compact corner pills, and automatically fade translucent whenever you touch, pan, zoom, or draw on the canvas.
+      </p>
+
+      <div class="diagram-stage">
+        <svg viewBox="0 0 960 430" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="TwoD Studio workspace layout diagram showing Top Bar, Left Panel, Center Stage, Right Inspector, and Bottom Timeline">
+          <line x1="20" y1="20" x2="940" y2="20" stroke="rgba(236,233,226,0.18)"/>
+          <line x1="20" y1="62" x2="940" y2="62" stroke="rgba(236,233,226,0.14)"/>
+          <line x1="20" y1="310" x2="940" y2="310" stroke="rgba(236,233,226,0.14)"/>
+          <line x1="20" y1="415" x2="940" y2="415" stroke="rgba(236,233,226,0.18)"/>
+          <line x1="210" y1="62" x2="210" y2="310" stroke="rgba(236,233,226,0.12)"/>
+          <line x1="730" y1="62" x2="730" y2="310" stroke="rgba(236,233,226,0.12)"/>
+
+          <text x="32" y="45" fill="#ece9e2" font-family="Instrument Sans, sans-serif" font-size="13" font-weight="600">TwoD Studio</text>
+          <text x="152" y="45" fill="#8ab4e0" font-family="IBM Plex Mono, monospace" font-size="11">① [Setup | Animate | Pro]</text>
+          <text x="366" y="45" fill="#76c4dc" font-family="IBM Plex Mono, monospace" font-size="11">② [New | Save | Undo/Redo]</text>
+          <text x="580" y="45" fill="#8ab4e0" font-family="IBM Plex Mono, monospace" font-size="11">③ [Library] [Mesh 2.5D] [Paint]</text>
+          <text x="845" y="45" fill="#6ec49e" font-family="IBM Plex Mono, monospace" font-size="11">④ [Export]</text>
+
+          <text x="32" y="88" fill="#8ab4e0" font-family="IBM Plex Mono, monospace" font-size="11">⑤ LEFT PANEL &amp; LOCKS</text>
+          <text x="32" y="110" fill="#ece9e2" font-family="Inter, sans-serif" font-size="12" font-weight="500">[Bones]  |  [Trajectory]</text>
+          <text x="32" y="138" fill="#666560" font-family="IBM Plex Mono, monospace" font-size="10">SCENE / BACKGROUND [Lock]</text>
+          <text x="40" y="156" fill="#a8a69f" font-family="Inter, sans-serif" font-size="11.5">└─ Scene Root</text>
+          <text x="32" y="182" fill="#76c4dc" font-family="IBM Plex Mono, monospace" font-size="10">CHARACTER RIGS [Eye] [Lock]</text>
+          <text x="40" y="200" fill="#ece9e2" font-family="Inter, sans-serif" font-size="11.5">▼ Character 1 [Scale] [×]</text>
+          <text x="52" y="218" fill="#a8a69f" font-family="Inter, sans-serif" font-size="11">├─ Hips → Spine → Head</text>
+          <text x="52" y="236" fill="#a8a69f" font-family="Inter, sans-serif" font-size="11">├─ Arms L / R · Facial Sub-Rig</text>
+          <text x="52" y="254" fill="#a8a69f" font-family="Inter, sans-serif" font-size="11">└─ Legs L / R · [IK Pin / Sub-Rig]</text>
+          <text x="32" y="282" fill="#8ab4e0" font-family="IBM Plex Mono, monospace" font-size="10">PROPS &amp; OBJECTS [Lock]</text>
+
+          <text x="226" y="88" fill="#76c4dc" font-family="IBM Plex Mono, monospace" font-size="10.5">⑥ COLLAPSIBLE TOOLS: [◂] Select · Gizmo · FK · IK · Move · Draw · Cycles</text>
+          <text x="226" y="294" fill="#6ec49e" font-family="IBM Plex Mono, monospace" font-size="10.5">⑦ COLLAPSIBLE VIEW BAR: [◂] Bones · Sprites · Gizmo · Mesh · Onion · Lens</text>
+
+          <line x1="250" y1="250" x2="680" y2="170" stroke="rgba(138,180,224,0.45)" stroke-width="1.5" stroke-dasharray="5,5"/>
+          <circle cx="470" cy="145" r="14" fill="none" stroke="#76c4dc" stroke-width="1.6"/>
+          <line x1="470" y1="159" x2="470" y2="208" stroke="#76c4dc" stroke-width="2.2"/>
+          <line x1="470" y1="170" x2="444" y2="205" stroke="#76c4dc" stroke-width="1.8"/>
+          <line x1="470" y1="170" x2="496" y2="198" stroke="#76c4dc" stroke-width="1.8"/>
+          <line x1="470" y1="208" x2="456" y2="256" stroke="#6ec49e" stroke-width="1.8"/>
+          <line x1="470" y1="208" x2="484" y2="256" stroke="#6ec49e" stroke-width="1.8"/>
+          <circle cx="470" cy="208" r="3.5" fill="#8ab4e0"/>
+
+          <text x="746" y="88" fill="#8ab4e0" font-family="IBM Plex Mono, monospace" font-size="11">⑧ RIGHT INSPECTOR</text>
+          <text x="746" y="110" fill="#ece9e2" font-family="Inter, sans-serif" font-size="11.5">Setup: [Bone] | [Sprites &amp; Mesh]</text>
+          <text x="746" y="130" fill="#76c4dc" font-family="Inter, sans-serif" font-size="11.5">Pro: [Camera | Time | Attach | FX]</text>
+          <text x="746" y="162" fill="#a8a69f" font-family="Inter, sans-serif" font-size="11">• Smart Bone Dials &amp; Springs</text>
+          <text x="746" y="182" fill="#a8a69f" font-family="Inter, sans-serif" font-size="11">• Vitruvian Swaps &amp; Spline Chains</text>
+          <text x="746" y="202" fill="#a8a69f" font-family="Inter, sans-serif" font-size="11">• Clipping Masks &amp; Parallax Depth</text>
+          <text x="746" y="222" fill="#a8a69f" font-family="Inter, sans-serif" font-size="11">• Auto-Fit, Pivots &amp; Visemes</text>
+
+          <text x="32" y="334" fill="#8ab4e0" font-family="IBM Plex Mono, monospace" font-size="11">⑨ TIMELINE, FX CHIPS &amp; AUDIO</text>
+          <text x="275" y="334" fill="#76c4dc" font-family="IBM Plex Mono, monospace" font-size="10.5">[Clips] · Transport · FPS · [Key Lock] [+Audio] [+FX] [Poses] [Cycles]</text>
+          <text x="32" y="360" fill="#d47b88" font-family="Inter, sans-serif" font-size="11">FX Chips  [+FX] · Audio (BGM / VOX)</text>
+          <text x="32" y="381" fill="#ece9e2" font-family="Inter, sans-serif" font-size="11.5">▼ Character 1 (Group Track)  [◆×]</text>
+          <text x="48" y="400" fill="#a8a69f" font-family="Inter, sans-serif" font-size="11">├─ Hips (Root) [+◆] · Arms / Legs</text>
+          <line x1="250" y1="345" x2="250" y2="410" stroke="rgba(236,233,226,0.12)"/>
+          <line x1="420" y1="345" x2="420" y2="410" stroke="#d47b88" stroke-width="1.5"/>
+          <rect x="445" y="352" width="130" height="12" rx="4" fill="rgba(212,123,136,0.28)" stroke="#d47b88" stroke-width="1"/>
+          <polygon points="420,375 425,380 420,385 415,380" fill="#8ab4e0"/>
+          <polygon points="560,394 565,399 560,404 555,399" fill="#76c4dc"/>
+        </svg>
+        <div class="diagram-caption">
+          <span>Fig 1.1 — Complete Workspace Callout Map</span>
+          <span>Stage HUD, Inspector, FX Chips &amp; Audio Lanes</span>
+        </div>
+      </div>
+
+      <div class="callout-grid">
+        <div class="callout-row">
+          <div class="callout-num">①</div>
+          <div class="callout-text">
+            <strong>Setup Mode Frame Lock &amp; Global Key Lock</strong>
+            In Setup Mode, the bottom frame seeker stays locked by default so accidental palm or thumb touches never jump off Frame 0 while rigging. In Animate Mode, toggle <span class="ui-key">Key Lock</span> whenever you want to preview poses without recording keyframes.
+          </div>
+        </div>
+        <div class="callout-row">
+          <div class="callout-num">③</div>
+          <div class="callout-text">
+            <strong>Dedicated Top-Bar Studios (Library · Mesh 2.5D · Paint)</strong>
+            Opens the 7-section Studio Library, the Contour Fit 2.5D Mesh Studio, or the multi-layer Sprite Paint Studio from any mode.
+          </div>
+        </div>
+        <div class="callout-row">
+          <div class="callout-num">⑤</div>
+          <div class="callout-text">
+            <strong>Left Panel Outliner, Eye Toggles &amp; Layer Locks</strong>
+            Organizes Background, Character Rigs, and Props on the <span class="ui-key">Bones</span> tab (with per-character Eye visibility toggles and Scene/Rig/Prop/Bone Lock icons) and houses the walking path editor on the <span class="ui-key">Trajectory</span> tab.
+          </div>
+        </div>
+        <div class="callout-row">
+          <div class="callout-num">⑨</div>
+          <div class="callout-text">
+            <strong>Hierarchical Timeline, FX Chips &amp; 2-Track Audio</strong>
+            Groups bone tracks under collapsible Character headers with one-tap <span class="ui-key">+◆</span> / <span class="ui-key">◆×</span> buttons, a dedicated <span class="ui-key">FX Chips</span> shader lane, and collapsible pinned/scrollable <span class="ui-key">BGM / VOX</span> audio lanes.
+          </div>
+        </div>
+      </div>
+
+      <h3 id="sec-modes">1.2 When to Use Setup, Animate, and Professional Modes</h3>
+      <div class="three-col-spec">
+        <div class="spec-item">
+          <div class="spec-item-label">01 · Setup Mode</div>
+          <h4>Build, Rig &amp; Anchor at Frame 0</h4>
+          <p>
+            Use Setup Mode when spawning characters, adjusting bone lengths, authoring Smart Bone dials, setting Vitruvian sub-rig groups, or fitting sprites to their bind pose. Setup preserves your current frame while keeping the seeker safely locked until unlocked.
+          </p>
+        </div>
+        <div class="spec-item">
+          <div class="spec-item-label">02 · Animate Mode</div>
+          <h4>Non-Retroactive Keyframing</h4>
+          <p>
+            Scrub to any frame and pose bones, swap Vitruvian variants, or add FX chips and audio cues. Editing at Frame &gt; 0 automatically anchors Frame 0 at bind pose so earlier animation is never disturbed.
+          </p>
+        </div>
+        <div class="spec-item">
+          <div class="spec-item-label">03 · Professional Mode</div>
+          <h4>Camera, Time, Attach &amp; Shader FX</h4>
+          <p>
+            Unlocks four director panels: <strong>Camera</strong> (keyframeable lens &amp; parallax), <strong>Time</strong> (non-linear speed curves), <strong>Attach</strong> (zero-jump dynamic prop parenting), and <strong>FX</strong> (Glass Plate shaders &amp; blend modes).
+          </p>
+        </div>
+      </div>
+
+      <h3 id="sec-tools">1.3 Universal All-in-One Gizmo &amp; Stage Tool Reference</h3>
+      <p>
+        Selection and manipulation are intentionally separated—<strong>Select (<span class="ui-key">V</span>)</strong> picks bones or sprites safely without dismantling a character, while the <strong>Universal Transform Gizmo (<span class="ui-key">T</span>)</strong> consolidates all bone and part operations in one stage controller. On desktop builds, a resizable left vertical tool rail also provides draggable, pinnable stage mini-panels for Smart Bone Dials, Vitruvian Switcher, Spline Chains, Clipping Masks, Multiplane Parallax, and Viseme Lip-Sync.
+      </p>
+      <table class="ref-table">
+        <thead>
+          <tr>
+            <th>Stage Tool</th>
+            <th>Available Modes</th>
+            <th>Behavior on Stage</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Select (<span class="ui-key">V</span>)</strong></td>
+            <td>Setup, Animate, Pro</td>
+            <td>
+              Safely selects any bone or opaque sprite pixel without pulling limbs apart. When a sprite is selected, reveals the sprite <strong>Gizmo box</strong> (4 corner scale handles, top rotation stalk, interior nudge area, and draggable pivot crosshair). In Setup Mode at Frame 0, dragging the tip handle of a non-prop bone adjusts its length and angle.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Universal Gizmo (<span class="ui-key">T</span>)</strong></td>
+            <td>Setup, Animate, Pro</td>
+            <td>
+              All-in-one bone transform controller supporting <strong>Pose (FK / IK)</strong>, <strong>Move Root</strong>, <strong>Bone Length</strong>, and <strong>Part Offset</strong> in a single unified on-stage widget—with full Undo transaction coalescing on drag release.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>FK (Forward Kinematics)</strong></td>
+            <td>Setup, Animate, Pro</td>
+            <td>
+              Rotates a bone directly around its joint pin while child bones follow in a clean arc with angle-unwrapping protection across ±180°.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>IK (2-Bone Inverse Kinematics)</strong></td>
+            <td>Animate, Pro</td>
+            <td>
+              Pulls a hand, forearm, foot, or shin directly to a target point on stage. The analytic 2-bone solver respects finite lower-joint limits and automatically preserves natural knee/elbow bend direction.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Move (Translate)</strong></td>
+            <td>Setup, Animate, Pro</td>
+            <td>
+              Translates an entire character rig or prop across the stage at any frame (`0..N`). Dragging any part of a prop moves its root bone directly so artwork and hierarchy stay locked together.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Draw (Freehand Cel)</strong></td>
+            <td>Setup, Animate, Pro</td>
+            <td>
+              Sketches directly on stage. Drawing at <strong>Frame 0</strong> creates a persistent global overlay; drawing at <strong>Frame &gt; 0</strong> records a keyframe-specific cel (with Copy/Paste and <span class="ui-key">+1F</span> / <span class="ui-key">+3F</span> clone buttons). Selecting <span class="ui-key">Scene (Background)</span> routes strokes to the background layer.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Pan / Zoom</strong></td>
+            <td>All Modes</td>
+            <td>
+              Drag to pan and two-finger pinch to zoom on touch devices; on desktop, use Middle-Mouse, Ctrl+Drag, or Spacebar+Drag to pan and cursor-anchored scroll-wheel to zoom.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </article>
+
+    <!-- ═════════════════════════════════════════════════════════════════════
+         PART II: CREATING ASSETS, 6 PRESET RIGS & .ZIP BUNDLES
+         ═════════════════════════════════════════════════════════════════════ -->
+    <article class="guide-section" id="sec-art-rules">
+      <div class="section-eyebrow">
+        <span>Section 2.1 · Asset Preparation</span>
+        <div class="section-rule"></div>
+      </div>
+      <h2>Preparing Character Sprites, Upright Hands &amp; Seamless Cutout Joints</h2>
+      <p>
+        Whether you draw inside TwoD Studio’s Sprite Paint Studio or export layers from Procreate, Photoshop, Krita, or Clip Studio Paint, four preparation rules ensure your character parts auto-fit cleanly and deform without gaps:
+      </p>
+
+      <div class="three-col-spec">
+        <div class="spec-item">
+          <div class="spec-item-label">Rule 01 · Orientation</div>
+          <h4>Draw Every Part Upright (0°)</h4>
+          <p>
+            Draw heads and torsos upright, arms and legs hanging straight down, hands with the <strong>wrist at the top (<span class="ui-key">anchorY ≈ 0.07</span>) and fingers pointing down</strong>, and feet flat pointing right. Never pre-rotate PNG limbs sideways—TwoD Studio aligns upright art to every bone automatically.
+          </p>
+        </div>
+        <div class="spec-item">
+          <div class="spec-item-label">Rule 02 · Alpha Bounds</div>
+          <h4>32-Bit Transparent PNGs</h4>
+          <p>
+            Export parts as transparent <span class="ui-key">.png</span> files. TwoD Studio scans opaque pixels (<span class="ui-key">SpriteAlphaBounds</span>) and ignores uneven transparent margins, so both cropped limbs and full-canvas exports scale and pivot accurately.
+          </p>
+        </div>
+        <div class="spec-item">
+          <div class="spec-item-label">Rule 03 · Joint Caps</div>
+          <h4>Round Overlapping Limb Ends</h4>
+          <p>
+            Avoid flat straight cuts at elbows, knees, shoulders, or ankles. Give overlapping limb ends a <strong>rounded semicircular cap</strong> so bending joints up to 140° never opens a V-shaped gap.
+          </p>
+        </div>
+      </div>
+
+      <div class="diagram-stage">
+        <canvas id="anatomyCanvas" width="920" height="380"></canvas>
+        <div class="diagram-caption">
+          <span>Fig 2.1 — Interactive Cutout Anatomy &amp; Rounded Joint Overlap (Click canvas to toggle Exploded / Assembled)</span>
+          <span>Highlighted dots indicate anatomical joint pin anchors</span>
+        </div>
+      </div>
+
+      <h3 id="sec-rigs">2.2 Six Built-In Preset Rigs &amp; Unlimited Custom Skeletons</h3>
+      <p>
+        TwoD Studio ships with <strong>six built-in skeleton presets</strong> (<span class="ui-path">Left Panel → + Preset</span> or <span class="ui-path">Top Bar → Library → Full Bone Rigs</span>) plus smart custom-bone matching for arbitrary hierarchies. Select a rig specification below:
+      </p>
+
+      <div class="underline-tabs" role="tablist">
+        <button class="u-tab active" role="tab" onclick="switchSpecTab(event, 'spec-human')">Humanoid (14–16 Parts)</button>
+        <button class="u-tab" role="tab" onclick="switchSpecTab(event, 'spec-facial')">Facial Sub-Rig (+7 Parts)</button>
+        <button class="u-tab" role="tab" onclick="switchSpecTab(event, 'spec-creatures')">Creature &amp; Winged Rigs (4 Presets)</button>
+        <button class="u-tab" role="tab" onclick="switchSpecTab(event, 'spec-custom')">Custom Rigs (Unlimited Bones)</button>
+      </div>
+
+      <div class="u-pane active" id="spec-human">
+        <p>
+          A standard Humanoid rig uses <strong>14 core body part sprites</strong> (single torso) or <strong>15–16 sprites</strong> when adding flowing hair, a skirt/gown on the hips, or a split spine and chest:
+        </p>
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Body Part</th>
+              <th>Filename Keywords (.ZIP &amp; Auto-Rig)</th>
+              <th>Reference Size (1× / 2× HD)</th>
+              <th>Joint Pin (Anchor X, Y)</th>
+              <th>Z-Order Layer</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td><strong>Head</strong></td><td><span class="ui-key">head.png</span>, <span class="ui-key">head_blank.png</span></td><td>100×115 / 200×230 px</td><td>50% X, 94% Y (Neck base)</td><td>+2 (Front)</td></tr>
+            <tr><td>2</td><td><strong>Torso / Spine</strong></td><td><span class="ui-key">torso.png</span>, <span class="ui-key">spine.png</span>, <span class="ui-key">body.png</span></td><td>88×128 / 176×256 px</td><td>50% X, 94% Y (Waistline)</td><td>+1 (Center)</td></tr>
+            <tr><td>3</td><td><strong>Upper Arm L (Back)</strong></td><td><span class="ui-key">upper_arm_l.png</span>, <span class="ui-key">uarm_l.png</span></td><td>34×90 / 68×180 px</td><td>50% X, 6% Y (Shoulder)</td><td>-1 (Behind torso)</td></tr>
+            <tr><td>4</td><td><strong>Lower Arm L (Back)</strong></td><td><span class="ui-key">lower_arm_l.png</span>, <span class="ui-key">forearm_l.png</span></td><td>28×84 / 56×168 px</td><td>50% X, 6% Y (Elbow)</td><td>-1 (Behind torso)</td></tr>
+            <tr><td>5</td><td><strong>Hand L (Back)</strong></td><td><span class="ui-key">hand_l.png</span>, <span class="ui-key">palm_l.png</span></td><td>38×46 / 76×92 px</td><td>50% X, 7% Y (Wrist top)</td><td>-1 (Behind torso)</td></tr>
+            <tr><td>6</td><td><strong>Upper Arm R (Front)</strong></td><td><span class="ui-key">upper_arm_r.png</span>, <span class="ui-key">uarm_r.png</span></td><td>34×90 / 68×180 px</td><td>50% X, 6% Y (Shoulder)</td><td>+3 (Front)</td></tr>
+            <tr><td>7</td><td><strong>Lower Arm R (Front)</strong></td><td><span class="ui-key">lower_arm_r.png</span>, <span class="ui-key">forearm_r.png</span></td><td>28×84 / 56×168 px</td><td>50% X, 6% Y (Elbow)</td><td>+3 (Front)</td></tr>
+            <tr><td>8</td><td><strong>Hand R (Front)</strong></td><td><span class="ui-key">hand_r.png</span>, <span class="ui-key">palm_r.png</span></td><td>38×46 / 76×92 px</td><td>50% X, 7% Y (Wrist top)</td><td>+3 (Front)</td></tr>
+            <tr><td>9</td><td><strong>Upper Leg L (Back)</strong></td><td><span class="ui-key">upper_leg_l.png</span>, <span class="ui-key">thigh_l.png</span></td><td>40×98 / 80×196 px</td><td>50% X, 6% Y (Hip socket)</td><td>-1 (Back leg)</td></tr>
+            <tr><td>10</td><td><strong>Lower Leg L (Back)</strong></td><td><span class="ui-key">lower_leg_l.png</span>, <span class="ui-key">shin_l.png</span></td><td>34×90 / 68×180 px</td><td>50% X, 6% Y (Knee)</td><td>-1 (Back leg)</td></tr>
+            <tr><td>11</td><td><strong>Foot L (Back)</strong></td><td><span class="ui-key">foot_l.png</span>, <span class="ui-key">shoe_l.png</span></td><td>58×34 / 116×68 px</td><td>14% X, 25% Y (Ankle heel)</td><td>-1 (Back leg)</td></tr>
+            <tr><td>12</td><td><strong>Upper Leg R (Front)</strong></td><td><span class="ui-key">upper_leg_r.png</span>, <span class="ui-key">thigh_r.png</span></td><td>40×98 / 80×196 px</td><td>50% X, 6% Y (Hip socket)</td><td>0 (Front leg)</td></tr>
+            <tr><td>13</td><td><strong>Lower Leg R (Front)</strong></td><td><span class="ui-key">lower_leg_r.png</span>, <span class="ui-key">shin_r.png</span></td><td>34×90 / 68×180 px</td><td>50% X, 6% Y (Knee)</td><td>0 (Front leg)</td></tr>
+            <tr><td>14</td><td><strong>Foot R (Front)</strong></td><td><span class="ui-key">foot_r.png</span>, <span class="ui-key">shoe_r.png</span></td><td>58×34 / 116×68 px</td><td>14% X, 25% Y (Ankle heel)</td><td>0 (Front leg)</td></tr>
+            <tr><td>15</td><td><strong>Hair</strong> (Optional)</td><td><span class="ui-key">hair.png</span>, <span class="ui-key">mane.png</span></td><td>200×260 / 400×520 px</td><td>50% X, 6% Y (Crown)</td><td>-2 (Behind body)</td></tr>
+            <tr><td>16</td><td><strong>Gown / Skirt</strong> (Optional)</td><td><span class="ui-key">gown.png</span>, <span class="ui-key">skirt.png</span>, <span class="ui-key">hips.png</span></td><td>130×240 / 260×480 px</td><td>50% X, 6% Y (Waistline)</td><td>0 (Hangs from hips)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="u-pane" id="spec-facial">
+        <p>
+          Select any <strong>Head</strong> bone in Setup Mode and tap <span class="ui-key">+ Add Facial Sub-Rig</span> (or open <strong>Sub-Rig Studio</strong>) to attach dedicated facial bones. Note that <span class="ui-key">pupilL</span> and <span class="ui-key">pupilR</span> are parented directly under their respective eye bones (<span class="ui-key">eyeL</span> / <span class="ui-key">eyeR</span>) so eye movement carries pupils naturally:
+        </p>
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th>Facial Part</th>
+              <th>Filename Keywords</th>
+              <th>Parent Bone</th>
+              <th>Animation Usage</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Left &amp; Right Eyes</strong></td><td><span class="ui-key">eye_l.png</span>, <span class="ui-key">eye_r.png</span></td><td><span class="ui-key">head</span></td><td>Blink sprite swaps, clipping mask targets, or vertical squash</td></tr>
+            <tr><td><strong>Left &amp; Right Pupils</strong></td><td><span class="ui-key">pupil_l.png</span>, <span class="ui-key">pupil_r.png</span></td><td><span class="ui-key">eye_l</span> / <span class="ui-key">eye_r</span></td><td>Translate inside clipped eye bounds for directional gaze</td></tr>
+            <tr><td><strong>Left &amp; Right Brows</strong></td><td><span class="ui-key">brow_l.png</span>, <span class="ui-key">brow_r.png</span></td><td><span class="ui-key">head</span></td><td>Rotate and raise/lower for expression or Smart Bone dials</td></tr>
+            <tr><td><strong>Mouth / Jaw</strong></td><td><span class="ui-key">mouth.png</span>, <span class="ui-key">lips.png</span>, <span class="ui-key">jaw.png</span></td><td><span class="ui-key">head</span></td><td>Swap visemes manually or drive via Audio Lip-Sync</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="u-pane" id="spec-creatures">
+        <div class="spec-grid" style="margin-top:8px;">
+          <div class="spec-item">
+            <div class="spec-item-label">Winged Biped Preset</div>
+            <h4>3-Segment Dorsal Wings</h4>
+            <p>
+              Full humanoid hierarchy paired with articulated left and right dorsal wings (<span class="ui-key">wing_upper_l/r</span>, <span class="ui-key">wing_lower_l/r</span>, <span class="ui-key">wing_feathers_l/r</span>) with procedural <span class="ui-key">BoneRole.wing</span> flapping motion.
+            </p>
+          </div>
+          <div class="spec-item">
+            <div class="spec-item-label">Quadruped Preset · 15 Bones</div>
+            <h4>Four-Legged Animals &amp; Beasts</h4>
+            <p>
+              Horizontal spine (<span class="ui-key">hips → spine → chest → neck → head</span>), four 3-bone leg chains, and a spring-enabled <span class="ui-key">tail</span>. Supports both <span class="ui-key">upper_arm/leg</span> and <span class="ui-key">hind_foot_l/r</span> aliases.
+            </p>
+          </div>
+          <div class="spec-item">
+            <div class="spec-item-label">T-Rex / Theropod &amp; Winged Dragon</div>
+            <h4>Jaw, Multi-Segment Tail &amp; 24-Bone Dragon</h4>
+            <p>
+              <strong>T-Rex</strong> adds a hinged <span class="ui-key">jaw</span> and 3-segment tail (<span class="ui-key">tail_mid</span>, <span class="ui-key">tail_tip</span>) with compact forelimbs. <strong>Winged Dragon</strong> combines a full quadruped body, hinged jaw, 3-segment tail, and 3-segment wings across 24 bones.
+            </p>
+          </div>
+          <div class="spec-item">
+            <div class="spec-item-label">Tendril / Chain Preset · 8 Segments</div>
+            <h4>Tentacles, Snakes, Vines &amp; Capes</h4>
+            <p>
+              Creates 8 linked segments (<span class="ui-key">seg_0 … seg_7</span>) with progressive spring follow-through. Bind segment PNGs per bone, or attach one continuous sprite to <span class="ui-key">seg_0</span> and use <strong>Contour Fit + Auto-Weights</strong> for fluid bending.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="u-pane" id="spec-custom">
+        <p>
+          Custom skeletons support unlimited bones and automatic part-name matching (<span class="ui-key">matchPartNameToSkeletonBone</span> matches filenames directly to custom bone IDs, normalized bone names, and canonical aliases):
+        </p>
+        <div class="procedure">
+          <div class="proc-step">
+            <div class="proc-step-title">1. Start from a Blank Character or Extend Any Preset</div>
+            <p>In the Left Panel (<span class="ui-key">Bones</span> tab), tap <span class="ui-key">+ Preset → Blank Character</span> or spawn any of the 6 presets. Select any parent bone and tap <span class="ui-key">+ Bone</span> to add child joints.</p>
+          </div>
+          <div class="proc-step">
+            <div class="proc-step-title">2. Aim &amp; Resize Bones on Stage at Frame 0</div>
+            <p>In <strong>Setup Mode</strong> at Frame 0 with <strong>Select</strong> or <strong>Universal Gizmo</strong> active, drag the bone tip handle to match your artwork’s joint-to-joint span.</p>
+          </div>
+          <div class="proc-step">
+            <div class="proc-step-title">3. Save Your Custom Rig &amp; Target Specific Skeletons</div>
+            <p>Save via <span class="ui-path">Library → Full Bone Rigs → + Save Current Rig</span>. In the Auto-Rig Hub, use the <strong>Target Skeleton</strong> selector to map imported parts onto an existing character or spawn a new namespaced skeleton without overwriting your scene.</p>
+          </div>
+        </div>
+      </div>
+
+      <h3 id="sec-zip">2.3 .ZIP Character Bundles &amp; Interactive 3-Option Head Mode Prompt</h3>
+      <p>
+        Compress all of a character’s PNG parts into a single <span class="ui-key">.zip</span> archive and import via <span class="ui-path">Library → Characters &amp; ZIPs → Import .ZIP Bundle</span>. TwoD Studio automatically computes opaque pixel bounds (<span class="ui-key">SpriteAlphaBounds</span>) and anatomical joint pivots on import, files parts into anatomical directories, and generates a 1-tap Character Card.
+      </p>
+      <p>
+        When a character pack includes both a finished painted head (<span class="ui-key">head.png</span>) and a blank head plus facial parts (<span class="ui-key">head_blank.png</span>, eyes, pupils, brows, mouth), spawning it presents three head modes:
+      </p>
+      <div class="three-col-spec">
+        <div class="spec-item">
+          <div class="spec-item-label">Mode 01</div>
+          <h4>Full Rig + Animated Facial Sub-Rig</h4>
+          <p>Uses <span class="ui-key">head_blank.png</span> and attaches independently poseable eye, pupil, brow, and mouth bones beneath the head for expressions and lip-sync.</p>
+        </div>
+        <div class="spec-item">
+          <div class="spec-item-label">Mode 02</div>
+          <h4>Full Rig + Static Drawn Head</h4>
+          <p>Uses the finished painted <span class="ui-key">head.png</span> on a single head bone for clean body acting when individual facial bones aren’t needed.</p>
+        </div>
+        <div class="spec-item">
+          <div class="spec-item-label">Mode 03</div>
+          <h4>Head &amp; Facial Sub-Rig Only</h4>
+          <p>Spawns a compact portrait/dialogue rig without the body—ideal for close-up acting shots and lip-sync tests.</p>
+        </div>
+      </div>
+
+      <h3 id="sec-library">2.4 Organizing the 7-Section Studio Library &amp; Custom Folders</h3>
+      <p>
+        The <strong>Studio Library</strong> provides seven drawers: <strong>1. Characters &amp; ZIPs</strong> (including the bundled starter &amp; creature cast), <strong>2. Sprites &amp; Parts</strong> (filterable by <em>Head &amp; Face</em>, <em>Torso &amp; Spine</em>, <em>Arms &amp; Hands</em>, <em>Legs &amp; Feet</em>, and <em>Hair &amp; Cloth</em>), <strong>3. Full Bone Rigs</strong>, <strong>4. Props &amp; Objects</strong>, <strong>5. Backgrounds</strong>, <strong>6. Animation Cycles</strong>, and <strong>7. Pose Library</strong>. Tap <span class="ui-key">+ New Folder</span> to file personal sprites, rigs, and cycles into custom project sets.
+      </p>
+    </article>
+
+    <!-- ═════════════════════════════════════════════════════════════════════
+         PART III: RIGGING, SMART BONES, VITRUVIAN SUB-RIGS & SPRINGS
+         ═════════════════════════════════════════════════════════════════════ -->
+    <article class="guide-section" id="sec-fk-ik">
+      <div class="section-eyebrow">
+        <span>Section 3.1 · Kinematics &amp; Advanced Rigging</span>
+        <div class="section-rule"></div>
+      </div>
+      <h2>FK, 2-Bone IK Pins, Smart Bone Dials, Sub-Rigs &amp; Spline Chains</h2>
+
+      <div class="diagram-stage">
+        <canvas id="marionetteCanvas" width="920" height="390"></canvas>
+        <div class="diagram-caption">
+          <span>Fig 3.1 — Interactive 2-Bone Analytic IK Reach &amp; Spring Follow-Through (Move cursor or touch across stage)</span>
+          <span>Limit-Aware IK Bend Resolution + Hair &amp; Cloak Springs</span>
+        </div>
+      </div>
+
+      <div class="two-col-spec">
+        <div class="spec-item">
+          <div class="spec-item-label">Kinematics · FK vs. 2-Bone IK</div>
+          <h4>Limit-Aware IK Bend Resolution</h4>
+          <p>
+            Use <strong>FK</strong> for sweeping arcs and <strong>IK</strong> to pull hands or feet to exact world targets. Creating an <strong>IK Pin</strong> (<span class="ui-key">Pin IK</span> in the Bone Inspector) automatically resolves bend direction from asymmetric finite lower-joint limits (or preserves the current evaluated fold) across all 6 preset rig types—locking feet solidly while preserving animated translations and scales.
+          </p>
+        </div>
+        <div class="spec-item">
+          <div class="spec-item-label">6-Stage Deterministic Engine</div>
+          <h4>Evaluation Order</h4>
+          <p>
+            Every frame evaluates deterministically across 6 stages: base keyframed/procedural pose → Vitruvian active sub-rig selection → Pre-IK Smart Bone dials → Analytic 2-Bone IK &amp; IK Pins → Post-IK Smart Bone corrective actions &amp; Spline Chains → unwrapped Spring Physics &amp; Inverse-Bind LBS mesh deformation.
+          </p>
+        </div>
+      </div>
+
+      <h3 id="sec-smart-bones">3.2 Smart Bone Action Dials &amp; Corrective Sprite Tracks</h3>
+      <p>
+        A <strong>Smart Bone Dial</strong> lets a single control bone’s rotation smoothly drive corrective bone poses and sprite-track adjustments (numeric neutral-relative offsets/scales/rotations, visibility toggles, and image swaps) across other parts of the rig—evaluated identically on the live Stage, hit-testing, 2.5D mesh rendering, and <span class="ui-key">FrameRenderer</span> export.
+      </p>
+      <div class="procedure">
+        <div class="proc-step">
+          <div class="proc-step-title">1. Create a Dial on a Control Bone</div>
+          <p>In Setup Mode, select the bone you want to act as the dial (for example, a head-turn, shoulder, or jaw bone). In the Bone Inspector under <strong>Smart Bone Action Dials</strong>, tap <span class="ui-key">+ Dial on [bone]</span>.</p>
+        </div>
+        <div class="proc-step">
+          <div class="proc-step-title">2. Author Max° (+100%) and Min° (-100%) Corrective Poses</div>
+          <p>Authoring starts at <strong>Max° (+100%)</strong>: pose the corrective child/neighbor bones or sprite tracks to close joint creases or turn facial features. Then switch to <strong>Pose @ Min° (-100%)</strong> and author the opposite extreme. A built-in self-guard keeps the control bone out of its own correction.</p>
+        </div>
+        <div class="proc-step">
+          <div class="proc-step-title">3. Scrub Test ° &amp; Finish</div>
+          <p>Drag the <span class="ui-key">Test °</span> slider across the full range to verify smooth shortest-arc blending, then tap <span class="ui-key">Done</span>. Both Pre-IK and Post-IK Smart Bone actions evaluate automatically whenever the control bone rotates during animation.</p>
+        </div>
+      </div>
+
+      <h3 id="sec-subrigs">3.3 Isolated Sub-Rig Studio &amp; Vitruvian Sub-Rig Swaps</h3>
+      <div class="two-col-spec">
+        <div class="spec-item">
+          <div class="spec-item-label">Sub-Rig Studio Modal</div>
+          <h4>Magnified 2.4× Isolated Editing</h4>
+          <p>
+            Launch <strong>Sub-Rig Studio</strong> from the bottom of the Left Bones panel to isolate any parent bone (such as a head or hand) and its children at 2.4× zoom. Spawn facial sub-rigs, attach sprites from Library or files, and fine-tune tiny joints without touching the rest of the stage.
+          </p>
+        </div>
+        <div class="spec-item">
+          <div class="spec-item-label">Vitruvian Groups</div>
+          <h4>Mid-Shot Rig Variant Switching</h4>
+          <p>
+            Group alternate rigged limbs or head setups inside a <strong>Vitruvian Group</strong> (<span class="ui-key">VitruvianGroup</span>) and keyframe clean switches between them mid-shot—ideal for swapping between front/three-quarter hands, alternate arm rigs, or head turn setups without rebuilding the skeleton.
+          </p>
+        </div>
+      </div>
+
+      <h3 id="sec-springs">3.4 Spline Chains, Unwrapped Spring Physics &amp; Multi-Sprite Layering</h3>
+      <div class="two-col-spec">
+        <div class="spec-item">
+          <div class="spec-item-label">Spline Chains &amp; Springs</div>
+          <h4>Tails, Hair, Capes &amp; Gravity</h4>
+          <p>
+            Bind multi-bone chains to a <strong>Spline Chain Constraint</strong> for smooth bendy arcs, or enable <strong>Spring Physics</strong> in the Bone Inspector (with <em>Stiffness</em>, <em>Damping</em>, and <em>Gravity</em>). Angle deltas unwrap via shortest-arc math so parent rotations past ±180° never cause spring whip.
+          </p>
+        </div>
+        <div class="spec-item">
+          <div class="spec-item-label">Multi-Sprite Bone Stacking</div>
+          <h4>Replace Existing vs. Layer On Top</h4>
+          <p>
+            Attaching a new sprite to an occupied bone prompts <strong>Replace Existing</strong> (costume/expression swap) or <strong>Layer On Top</strong>—stacking armor, shadows, or rim-lights on the same bone with independent Opacity keyframes, Blend Modes, Z-Order, and 2.5D Meshes.
+          </p>
+        </div>
+      </div>
+    </article>
+
+    <!-- ═════════════════════════════════════════════════════════════════════
+         PART IV: CONTOUR FIT 2.5D MESHES, CLIPPING MASKS & WALKING PATHS
+         ═════════════════════════════════════════════════════════════════════ -->
+    <article class="guide-section" id="sec-mesh">
+      <div class="section-eyebrow">
+        <span>Section 4.1 · 2.5D Volume &amp; Masking</span>
+        <div class="section-rule"></div>
+      </div>
+      <h2>Alpha-Aware Contour Fit 2.5D Meshes, Clipping Masks &amp; Walking Paths</h2>
+      <p>
+        Open <span class="ui-key">Mesh 2.5D</span> on any sprite to turn flat artwork into a deformable 2.5D triangle mesh. Rigid sprites, deformed 2.5D meshes, and Glass Plate Shader FX blocks composite inside one unified bone <span class="ui-key">resolvedZIndex</span> pass—so meshed hair, back arms, and foreground torsos always layer in exact depth order on both Stage and Export.
+      </p>
+
+      <div class="diagram-stage">
+        <canvas id="meshAndPathCanvas" width="920" height="360"></canvas>
+        <div class="diagram-caption">
+          <span>Fig 4.1 — Left: Interactive 2.5D Parallax Mesh Lattice (Move cursor) · Right: Perspective Walking Path with Ground Planting</span>
+          <span>Toggle wireframe visibility anytime via the stage Mesh button</span>
+        </div>
+      </div>
+
+      <div class="procedure">
+        <div class="proc-step">
+          <div class="proc-step-title">1. Alpha-Aware Contour Fit &amp; Locked Grid Density (2×2 – 10×10)</div>
+          <p>Inside <strong>Mesh 2.5D</strong>, enable <strong>Contour Fit</strong> to sample the sprite’s compact <span class="ui-key">64×64</span> alpha-occupancy grid and automatically cull triangles whose centroids fall in transparent space—wrapping the mesh closely around your visible art silhouette. Grid density stays locked after creation so accidental taps never wipe your work, and UV-space topology resampling preserves existing vertex edits when intentionally rebuilding density.</p>
+        </div>
+        <div class="proc-step">
+          <div class="proc-step-title">2. Branch-Safe Production Auto-Weights &amp; Full Mesh Undo/Redo</div>
+          <p>Tap <span class="ui-key">Auto-Weights</span> in <strong>Weight Paint</strong> mode: auto-weighting restricts candidate bones to the attached bone’s ancestor/descendant branch, preventing cross-branch folding or inverted triangles during deep limb bends. All vertex sculpts and weight paint strokes support full Undo/Redo inside the Mesh Studio header.</p>
+        </div>
+        <div class="proc-step">
+          <div class="proc-step-title">3. Per-Frame FFD Sculpting, Retroactive Tween Span &amp; Clipping Masks</div>
+          <p>Use <strong>Deform Vertices (FFD)</strong> or <strong>Soft-Falloff Brush</strong> to sculpt head turns and cloth volume at later frames, and tap <span class="ui-key">Tween Span</span> to blend across any custom range (<span class="ui-key">F_start → F</span>) using <em>Additive Blend</em> (preserving intermediate keys) or <em>Direct Morph</em>. For eyes, inner shadows, and cutaways, assign a <strong>Clipping Mask</strong> (<span class="ui-key">alphaMatte</span> or <span class="ui-key">meshContourPath</span> with <span class="ui-key">maskVisible</span> toggle) directly in the inspector.</p>
+        </div>
+      </div>
+
+      <h3 id="sec-trajectory">4.2 Perspective Walking Paths, Active Path Manager &amp; Multiplane Parallax</h3>
+      <p>
+        Switch the Left Panel from <span class="ui-key">Bones</span> to <span class="ui-key">Trajectory</span> to walk or run a character across roads, hills, or curved perspective paths with zero foot sliding:
+      </p>
+      <div class="procedure">
+        <div class="proc-step">
+          <div class="proc-step-title">1. Frame Your Shot &amp; Sketch Ground-Planted Waypoints</div>
+          <p>Use 2-finger pinch-zoom/pan or the <span class="ui-key">Pan / Arrange</span> chip to frame your scene first. Sketch a curve with <strong>Freehand Path</strong> or place waypoints, and enable <span class="ui-key">Plant Feet on Path</span> with slope alignment so soles stay locked to terrain angles.</p>
+        </div>
+        <div class="proc-step">
+          <div class="proc-step-title">2. Logarithmic Start &amp; End Frame Rig Scale (0.05× – 6.0×)</div>
+          <p>Set <strong>Start Frame Rig Scale</strong> and <strong>End Frame Rig Scale</strong> (or quick presets <span class="ui-key">1× → 2×</span>, <span class="ui-key">1× → 4×</span>, <span class="ui-key">1× → 0.45×</span>) with <span class="ui-key">Sync Rig Scale</span> enabled so stride length and root scale foreshorten logarithmically with perspective depth. Combine with per-layer <span class="ui-key">parallaxDepth</span> and the Camera Bone for multiplane camera depth.</p>
+        </div>
+        <div class="proc-step">
+          <div class="proc-step-title">3. Bake, Resolve Overlaps &amp; Edit Active Paths</div>
+          <p>Tap <span class="ui-key">Bake Trajectory to Clip</span>. Overlapping paths prompt to <strong>Chain After</strong>, <strong>Overwrite Overlap</strong>, or <strong>Replace Old Path</strong>, and all baked routes stay editable or removable inside the <strong>Active Trajectory Paths</strong> manager.</p>
+        </div>
+      </div>
+
+      <h3 id="sec-timeline">4.3 Collapsible Timeline, Cycle Studio &amp; Retroactive Tween Span</h3>
+      <table class="ref-table">
+        <thead>
+          <tr>
+            <th>Timeline Feature</th>
+            <th>Usage</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Collapsible Character Tree &amp; <span class="ui-key">+◆</span> / <span class="ui-key">◆×</span></strong></td>
+            <td>Collapse or expand any Character Rig or limb branch in the left column. Tap <span class="ui-key">+◆</span> or <span class="ui-key">◆×</span> on any row to add or clear a bone’s keyframe at the current frame.</td>
+          </tr>
+          <tr>
+            <td><strong>Unified 3-Tab Cycle Studio</strong></td>
+            <td><strong>Tab 1 (Browse &amp; Bake)</strong> layers built-in or saved cycles onto specific bone scopes (e.g., Walk on legs + Wave on arms); <strong>Tab 2 (Active Baked Cycles)</strong> edits speed, amplitude, or range in place; <strong>Tab 3 (Save Custom Cycle)</strong> captures reusable cycles into the Library. Guided walk/run baking keys only vertical bounce on <span class="ui-key">hips.y</span> so moving the character at the end frame smoothly guides the walk across the stage.</td>
+          </tr>
+          <tr>
+            <td><strong>Poses, Cross-Clip Copy &amp; Branch Shot</strong></td>
+            <td>Blend saved poses from 0% to 100%, copy/paste poses or keyframe ranges across clips, or use <strong>Branch Shot From Playhead</strong> (<span class="ui-key">Frame N → Frame 1</span>) to continue an action cleanly in a fresh shot.</td>
+          </tr>
+          <tr>
+            <td><strong>Retroactive Tween Span (<span class="ui-key">F0 → F</span>)</strong></td>
+            <td>Available on Bones, Sprites, and 2.5D Meshes to blend scale, translation, or vertex changes across intermediate frames while keeping Frame 0 locked.</td>
+          </tr>
+        </tbody>
+      </table>
+    </article>
+
+    <!-- ═════════════════════════════════════════════════════════════════════
+         PART V: GLASS PLATE SHADER FX, DIRECTING, PAINT, AUDIO & EXPORT
+         ═════════════════════════════════════════════════════════════════════ -->
+    <article class="guide-section" id="sec-shader-fx">
+      <div class="section-eyebrow">
+        <span>Section 5.1 · Non-Destructive Shader FX</span>
+        <div class="section-rule"></div>
+      </div>
+      <h2>Glass Plate Shader FX Chips (11 Effects · 4 Scopes)</h2>
+      <p>
+        Instead of distorting individual limbs in isolation (which tears elbows and knees apart), TwoD Studio composites the target scope onto a shared world-space <strong>Glass Plate</strong> bounding box with proportional world padding (35% symmetric + 60% bottom melt margin) and warps a deterministic 32×32 UV lattice. IK/FK bones stay 100% live underneath, pausing freezes the exact frame, and exported renders match the stage 1:1.
+      </p>
+
+      <div class="two-col-spec">
+        <div class="spec-item">
+          <div class="spec-item-label">11 Built-In Shader Effects</div>
+          <h4>Distortion, Glitch &amp; Atmospheric Shaders</h4>
+          <p>
+            <strong>Melt</strong> (100-frame top-to-bottom progressive wax meltdown with deterministic column-hashed drip phases and floor puddle), <strong>Wiggle / Boil</strong>, <strong>Ripple</strong>, <strong>Vortex</strong>, <strong>Glitch</strong> (hybrid scanline slices + RGB channel split), <strong>Dissolve</strong>, <strong>Wave Warp</strong>, <strong>Pixelate</strong>, <strong>Chromatic Aberration</strong>, <strong>Hue Shift</strong>, and <strong>Glow Outline</strong>.
+          </p>
+        </div>
+        <div class="spec-item">
+          <div class="spec-item-label">FX Chips Track &amp; 4 Scopes</div>
+          <h4>Character, Subtree, Sprite or Full Scene</h4>
+          <p>
+            Tap <span class="ui-key">+FX</span> on the dedicated <strong>FX Chips</strong> timeline lane (or long-press a character on stage) to drop a duration chip scoped to a <strong>Character</strong>, <strong>Bone Subtree</strong>, <strong>Sprite</strong>, or <strong>Full Scene</strong>. Drag chip edges to resize duration, animate Start→End easing curves, or save custom presets to your Library.
+          </p>
+        </div>
+      </div>
+
+      <h3 id="sec-pro">5.2 Camera Lens Director, Time Remapping &amp; Dynamic Prop Attach</h3>
+      <div class="two-col-spec">
+        <div class="spec-item">
+          <div class="spec-item-label">Pro Tab 01 · Camera Lens &amp; Parallax</div>
+          <h4>Keyframeable Camera Bone</h4>
+          <p>
+            In <strong>Professional Mode → Camera</strong>, tap <span class="ui-key">Ensure Camera Lens Bone</span> to keyframe pans, tracking shots, zooms, and Dutch tilts, and toggle <span class="ui-key">View Through Lens</span> to preview the exact exported frame.
+          </p>
+        </div>
+        <div class="spec-item">
+          <div class="spec-item-label">Pro Tab 02 · Time Remapping</div>
+          <h4>Bullet-Time &amp; Non-Linear Speed Curves</h4>
+          <p>
+            Apply <em>Bullet-Time Mid</em>, <em>Fast-In Slow-Out</em>, <em>Slow-In Fast-Out</em>, <em>Heartbeat Pulse</em>, <em>Ping-Pong</em>, or custom Bezier speed curves across poses, sprites, 2.5D meshes, cels, and FX chips—rendered identically in both live playback and export.
+          </p>
+        </div>
+        <div class="spec-item">
+          <div class="spec-item-label">Pro Tab 03 · Dynamic Attach</div>
+          <h4>Zero-Jump Prop Hand-Offs</h4>
+          <p>
+            Switch a prop’s parent bone at any frame (e.g., <span class="ui-key">Scene</span> → <span class="ui-key">Hand R</span> → <span class="ui-key">Scene</span>) with automatic inverse-matrix world compensation so the prop never teleports, plus independent <span class="ui-key">inheritRotation</span> and <span class="ui-key">inheritScale</span> toggles.
+          </p>
+        </div>
+        <div class="spec-item">
+          <div class="spec-item-label">Pro Tab 04 · Blend Modes &amp; Locks</div>
+          <h4>12 Blend Modes, Vignette &amp; Stage Safety</h4>
+          <p>
+            Assign per-sprite and background blend modes (<em>Multiply</em>, <em>Screen</em>, <em>Overlay</em>, <em>Color Dodge</em>, <em>Difference</em>, and more), dial in atmospheric vignettes, and lock completed Backgrounds, Character Rigs, Props, or individual Bones in the Outliner to prevent accidental edits.
+          </p>
+        </div>
+      </div>
+
+      <h3 id="sec-paint">5.3 Sprite Paint Studio, Smart Lasso &amp; Blank-Canvas Drawing</h3>
+      <p>
+        Tap <span class="ui-key">Paint</span> in the top bar (or select a sprite and tap <span class="ui-key">Edit / Paint Sprite</span>) to open the GPU-accelerated <strong>Sprite Paint Studio</strong> with multi-layer compositing, Ink Pen, Soft Brush, Airbrush, Marker, Wash, Smudge, mirror/quad symmetry, and blank-canvas prop/asset creation:
+      </p>
+      <div class="spec-grid">
+        <div class="spec-item">
+          <div class="spec-item-label">Smart Cutout &amp; Transforms</div>
+          <h4>Smart Lasso, Flip H/V &amp; 90° Rotation</h4>
+          <p>
+            Trace unwanted background pixels with <strong>Smart Lasso</strong> and choose <span class="ui-key">Erase Inside</span>, <span class="ui-key">Keep Inside</span>, or color-aware <span class="ui-key">Smart Cutout</span>. Use <span class="ui-key">Flip H/V</span> and aspect-preserving <span class="ui-key">Rotate 90° CW/CCW</span> (automatically swapping logical stage dimensions without stretching narrow limbs).
+          </p>
+        </div>
+        <div class="spec-item">
+          <div class="spec-item-label">Non-Retroactive Cel &amp; Sprite Edits</div>
+          <h4>Keyframe Paint-Overs &amp; Cel Conversion</h4>
+          <p>
+            Editing a sprite at Frame &gt; 0 with <strong>Keyframe Mode</strong> swaps the sprite image from that frame onward without altering earlier frames. Freehand stage cels can also be long-pressed and rasterized directly onto any Character or Prop bone with zero-jump matrix compensation.
+          </p>
+        </div>
+      </div>
+
+      <h3 id="sec-audio">5.4 2-Channel Multi-Track Audio Engine &amp; Viseme Lip-Sync</h3>
+      <div class="spec-grid">
+        <div class="spec-item">
+          <div class="spec-item-label">Audio Engine · BGM &amp; VOX Lanes</div>
+          <h4>Multi-Track Mixer &amp; Native AAC Export</h4>
+          <p>
+            Tap <span class="ui-key">+ Audio</span> in the timeline toolbar to load <span class="ui-key">.wav</span>, <span class="ui-key">.mp3</span>, <span class="ui-key">.m4a</span>, or <span class="ui-key">.ogg</span> files (or synthesize studio cues) onto independent <strong>Background (BGM)</strong> and <strong>Voice-Over / SFX (VOX)</strong> lanes. Pin or scroll the collapsible Audio group, adjust <strong>Start Frame</strong>, <strong>Trim In/Out</strong>, <strong>Volume (0–200%)</strong>, <strong>Mute</strong>, and <strong>Fade-In / Fade-Out</strong>; MP4 export mixes both lanes to 44.1 kHz stereo 128 kbps AAC automatically.
+          </p>
+        </div>
+        <div class="spec-item">
+          <div class="spec-item-label">Dialogue · Visemes &amp; Lip-Sync</div>
+          <h4>Viseme Bank &amp; Rough-Draft Lip-Sync</h4>
+          <p>
+            Switch mouth shapes rapidly via the <strong>Viseme Switcher Bank</strong> or generate an automatic rough-draft mouth animation pass from your imported voice-over track, then refine individual dialogue keyframes on the timeline.
+          </p>
+        </div>
+      </div>
+
+      <h3 id="sec-export" style="margin-top:42px;">5.5 Stage-to-Export Parity, Multi-Clip Playlists &amp; Local Export</h3>
+      <p>
+        Use <span class="ui-key">+ Clips</span> to manage multiple shots inside one project and assemble them into a <strong>Sequence Playlist</strong> with pose-blended transitions. <span class="ui-key">FrameRenderer</span> maintains 100% parity with the live Stage—evaluating Time Remapping, IK Pins, Smart Bone sprite tracks, unified rigid + 2.5D mesh Z-ordering, Glass Plate Shader FX chips, hidden layers, and mixed audio identically. All outputs write locally to <strong><span class="ui-path">Download/TwoD Studio Export</span></strong> (Android) or <strong><span class="ui-path">Documents/TwoD Studio Export</span></strong> (Windows):
+      </p>
+      <table class="ref-table">
+        <thead>
+          <tr>
+            <th>Export Format</th>
+            <th>Output File</th>
+            <th>Best Used For</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>MP4 Video (H.264 + AAC)</strong></td>
+            <td><span class="ui-key">&lt;project&gt;_&lt;clip&gt;.mp4</span></td>
+            <td>Background-threaded hardware H.264 video (720p, 1080p, square, or custom dimensions) with mixed 2-channel AAC audio, camera motion, 2.5D meshes, and shader FX.</td>
+          </tr>
+          <tr>
+            <td><strong>PNG Sequence (.ZIP)</strong></td>
+            <td><span class="ui-key">&lt;project&gt;_&lt;clip&gt;_frames.zip</span></td>
+            <td>Streaming PKZIP frame sequence (<span class="ui-key">frame_0000.png …</span>) with optional alpha transparency and $O(1)$ RAM usage for compositing in Blender, After Effects, or DaVinci Resolve.</td>
+          </tr>
+          <tr>
+            <td><strong>Sprite Sheet &amp; Portable <span class="ui-key">.k2d.json</span></strong></td>
+            <td><span class="ui-key">.png + .json</span> / <span class="ui-key">.k2d.json</span></td>
+            <td>GPU-guarded streaming sprite sheet atlas for 2D game engines, or a crash-safe atomic <span class="ui-key">.k2d.json</span> v2 project file fully compatible between Android and Windows.</td>
+          </tr>
+        </tbody>
+      </table>
+    </article>
+
+  </main>
+
+  <!-- SUBTLE TRANSPARENT SCROLL INDICATOR -->
+  <div class="scroll-rail" id="scrollRail" aria-hidden="true">
+    <div class="scroll-thumb" id="scrollThumb"></div>
+  </div>
+
+
+  <script>
+    // Detect if opened inside the Layer 2 folio spread overlay
+    if (window.self !== window.top) {
+      document.body.classList.add('embedded-spread');
+    }
+
+    function switchSpecTab(evt, paneId) {
+      document.querySelectorAll('.u-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.u-pane').forEach(p => p.classList.remove('active'));
+      evt.currentTarget.classList.add('active');
+      const target = document.getElementById(paneId);
+      if (target) target.classList.add('active');
+      updateScrollIndicator();
+    }
+
+    function filterManualSections(query) {
+      const q = (query || '').trim().toLowerCase();
+      document.querySelectorAll('.guide-section').forEach(sec => {
+        if (!q) { sec.style.display = ''; return; }
+        sec.style.display = sec.innerText.toLowerCase().includes(q) ? '' : 'none';
+      });
+      updateScrollIndicator();
+    }
+
+    const scrollRail = document.getElementById('scrollRail');
+    const scrollThumb = document.getElementById('scrollThumb');
+    let scrollIdleTimer = null;
+
+    function updateScrollIndicator() {
+      if (!scrollRail || !scrollThumb) return;
+      const doc = document.documentElement;
+      const maxScroll = Math.max(0, doc.scrollHeight - window.innerHeight);
+      if (maxScroll <= 4) {
+        scrollRail.style.display = 'none';
+        return;
+      }
+      scrollRail.style.display = '';
+      const railH = scrollRail.clientHeight || 160;
+      const visibleRatio = window.innerHeight / doc.scrollHeight;
+      const thumbH = Math.max(20, Math.min(railH * 0.55, railH * visibleRatio));
+      const progress = Math.max(0, Math.min(1, window.scrollY / maxScroll));
+      const travel = railH - thumbH;
+
+      scrollThumb.style.height = thumbH.toFixed(1) + 'px';
+      scrollThumb.style.transform = `translate3d(0, ${(progress * travel).toFixed(1)}px, 0)`;
+    }
+
+    function onScrollUpdate() {
+      updateScrollIndicator();
+
+      document.body.classList.add('is-scrolling');
+      clearTimeout(scrollIdleTimer);
+      scrollIdleTimer = setTimeout(() => {
+        document.body.classList.remove('is-scrolling');
+      }, 850);
+
+      const sections = document.querySelectorAll('.guide-section, h3[id]');
+      const links = document.querySelectorAll('.index-link');
+      let current = 'sec-interface';
+      sections.forEach(s => {
+        if (s.getBoundingClientRect().top <= 140) current = s.id;
+      });
+      links.forEach(a => {
+        a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+      });
+    }
+
+    window.addEventListener('scroll', onScrollUpdate, { passive: true });
+    window.addEventListener('resize', updateScrollIndicator, { passive: true });
+    window.addEventListener('load', updateScrollIndicator);
+    updateScrollIndicator();
+
+    // ── 1. CUTOUT ANATOMY & JOINT CAPS VISUALIZER ───────────────────────────
+    (function initAnatomyCanvas() {
+      const canvas = document.getElementById('anatomyCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let exploded = true;
+      let blend = 1.0;
+      let t = 0;
+
+      canvas.addEventListener('click', () => { exploded = !exploded; });
+
+      const parts = [
+        { name: 'head.png', ax: 270, ay: 88, ex: 270, ey: 48, w: 18, h: 23, pinY: 0.85, col: '#8ab4e0' },
+        { name: 'hair.png', ax: 258, ay: 106, ex: 135, ey: 68, w: 26, h: 48, pinY: -0.78, col: '#76c4dc' },
+        { name: 'torso.png', ax: 270, ay: 152, ex: 270, ey: 148, w: 22, h: 38, pinY: 0.85, col: '#8ab4e0' },
+        { name: 'gown.png', ax: 270, ay: 232, ex: 405, ey: 168, w: 30, h: 52, pinY: -0.82, col: '#8ab4e0' },
+        { name: 'upper_arm_l.png', ax: 240, ay: 144, ex: 135, ey: 162, w: 9, h: 26, pinY: -0.8, col: '#6ec49e' },
+        { name: 'lower_arm_l.png', ax: 234, ay: 192, ex: 135, ey: 235, w: 8, h: 24, pinY: -0.8, col: '#6ec49e' },
+        { name: 'upper_arm_r.png', ax: 300, ay: 144, ex: 405, ey: 78, w: 9, h: 26, pinY: -0.8, col: '#6ec49e' },
+        { name: 'lower_arm_r.png', ax: 306, ay: 192, ex: 485, ey: 78, w: 8, h: 24, pinY: -0.8, col: '#6ec49e' },
+        { name: 'upper_leg_l.png', ax: 255, ay: 234, ex: 195, ey: 268, w: 10, h: 30, pinY: -0.8, col: '#76c4dc' },
+        { name: 'lower_leg_l.png', ax: 252, ay: 296, ex: 195, ey: 335, w: 9, h: 28, pinY: -0.8, col: '#76c4dc' },
+        { name: 'upper_leg_r.png', ax: 285, ay: 234, ex: 345, ey: 268, w: 10, h: 30, pinY: -0.8, col: '#76c4dc' },
+        { name: 'lower_leg_r.png', ax: 288, ay: 296, ex: 345, ey: 335, w: 9, h: 28, pinY: -0.8, col: '#76c4dc' }
+      ];
+
+      function draw() {
+        t += 0.025;
+        blend += ((exploded ? 1.0 : 0.0) - blend) * 0.08;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        parts.forEach((p, i) => {
+          const floatY = Math.sin(t + i * 0.5) * 2.2;
+          const x = p.ax + (p.ex - p.ax) * blend;
+          const y = p.ay + (p.ey - p.ay) * blend + floatY;
+
+          if (blend > 0.05) {
+            ctx.beginPath();
+            ctx.moveTo(p.ax, p.ay);
+            ctx.lineTo(x, y);
+            ctx.strokeStyle = `rgba(138, 180, 224, ${0.18 * blend})`;
+            ctx.setLineDash([3, 4]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+          }
+
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.beginPath();
+          ctx.ellipse(0, 0, p.w, p.h, 0, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(236, 233, 226, 0.08)';
+          ctx.strokeStyle = p.col;
+          ctx.lineWidth = 1.2;
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.arc(0, p.pinY * p.h, 3.2, 0, Math.PI * 2);
+          ctx.fillStyle = '#8ab4e0';
+          ctx.fill();
+
+          if (blend > 0.3) {
+            ctx.fillStyle = `rgba(236, 233, 226, ${0.75 * blend})`;
+            ctx.font = '10px "IBM Plex Mono", monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText(p.name, 0, p.h + 13);
+          }
+          ctx.restore();
+        });
+
+        ctx.beginPath();
+        ctx.moveTo(555, 25);
+        ctx.lineTo(555, 355);
+        ctx.strokeStyle = 'rgba(236, 233, 226, 0.09)';
+        ctx.stroke();
+
+        const bendAngle = -0.35 - (Math.sin(t * 1.4) * 0.5 + 0.5) * 1.25;
+
+        ctx.fillStyle = '#d47b88';
+        ctx.font = '11px "IBM Plex Mono", monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText('✗ FLAT-CUT JOINT (OPENS GAP)', 585, 48);
+
+        ctx.save();
+        ctx.translate(645, 75);
+        ctx.fillStyle = 'rgba(236, 233, 226, 0.1)';
+        ctx.strokeStyle = 'rgba(236, 233, 226, 0.32)';
+        ctx.fillRect(-14, 0, 28, 68);
+        ctx.strokeRect(-14, 0, 28, 68);
+        ctx.translate(14, 68);
+        ctx.rotate(bendAngle);
+        ctx.fillRect(-13, 0, 26, 64);
+        ctx.strokeRect(-13, 0, 26, 64);
+        ctx.restore();
+
+        ctx.fillStyle = '#6ec49e';
+        ctx.fillText('✓ ROUNDED JOINT CAP (SEAMLESS AT ALL ANGLES)', 585, 215);
+
+        ctx.save();
+        ctx.translate(645, 242);
+        ctx.beginPath();
+        ctx.roundRect(-14, 0, 28, 80, 14);
+        ctx.fillStyle = 'rgba(138, 180, 224, 0.18)';
+        ctx.strokeStyle = '#8ab4e0';
+        ctx.fill();
+        ctx.stroke();
+        ctx.translate(0, 66);
+        ctx.rotate(bendAngle);
+        ctx.beginPath();
+        ctx.roundRect(-13, -13, 26, 76, 13);
+        ctx.fillStyle = 'rgba(110, 196, 158, 0.22)';
+        ctx.strokeStyle = '#6ec49e';
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(0, 0, 4, 0, Math.PI * 2);
+        ctx.fillStyle = '#ece9e2';
+        ctx.fill();
+        ctx.restore();
+
+        requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+
+    // ── 2. IK REACH & SPRING FOLLOW-THROUGH VISUALIZER ──────────────────────
+    (function initMarionetteCanvas() {
+      const canvas = document.getElementById('marionetteCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let targetX = 560, targetY = 140;
+      let handX = 560, handY = 140;
+      let hairAng = 0, hairVel = 0;
+      let capeAng = 0, capeVel = 0;
+      let t = 0;
+
+      canvas.addEventListener('pointermove', e => {
+        const r = canvas.getBoundingClientRect();
+        targetX = ((e.clientX - r.left) / r.width) * canvas.width;
+        targetY = ((e.clientY - r.top) / r.height) * canvas.height;
+      });
+
+      function capsule(x1, y1, x2, y2, r1, r2, fill, stroke) {
+        const dx = x2 - x1, dy = y2 - y1;
+        const len = Math.hypot(dx, dy) || 1;
+        const a = Math.atan2(dy, dx);
+        ctx.save();
+        ctx.translate(x1, y1);
+        ctx.rotate(a);
+        ctx.beginPath();
+        ctx.arc(0, 0, r1, Math.PI * 0.5, Math.PI * 1.5);
+        ctx.lineTo(len, -r2);
+        ctx.arc(len, 0, r2, -Math.PI * 0.5, Math.PI * 0.5);
+        ctx.closePath();
+        ctx.fillStyle = fill;
+        ctx.fill();
+        ctx.strokeStyle = stroke;
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function pin(x, y) {
+        ctx.beginPath();
+        ctx.arc(x, y, 3.8, 0, Math.PI * 2);
+        ctx.fillStyle = '#8ab4e0';
+        ctx.fill();
+      }
+
+      function tick() {
+        t += 0.025;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const prevX = handX;
+        handX += (targetX - handX) * 0.09;
+        handY += (targetY - handY) * 0.09;
+        const impulse = (handX - prevX) * 0.014;
+
+        hairVel += ((Math.sin(t * 1.5) * 0.1 - impulse * 1.8) - hairAng) * 0.08;
+        hairVel *= 0.88;
+        hairAng += hairVel;
+
+        capeVel += ((Math.sin(t * 1.2 - 0.5) * 0.08 - impulse * 1.4) - capeAng) * 0.06;
+        capeVel *= 0.90;
+        capeAng += capeVel;
+
+        const breath = Math.sin(t * 1.6) * 3;
+        const hipX = 420, hipY = 235 + breath * 0.4;
+        const shX = 420 + (handX - 440) * 0.05;
+        const shY = 135 + breath;
+        const hdX = shX + (handX - 440) * 0.07;
+        const hdY = 86 + breath;
+
+        ctx.save();
+        ctx.translate(hdX - 6, hdY - 10);
+        ctx.rotate(hairAng);
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.bezierCurveTo(-55, 28, -80, 95, -45, 160);
+        ctx.bezierCurveTo(-20, 135, -8, 78, 10, 14);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(118, 196, 220, 0.14)';
+        ctx.strokeStyle = 'rgba(118, 196, 220, 0.45)';
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+
+        ctx.save();
+        ctx.translate(hipX, hipY - 8);
+        ctx.rotate(capeAng);
+        ctx.beginPath();
+        ctx.moveTo(-20, 0);
+        ctx.bezierCurveTo(-45, 58, -60, 115, -34, 145);
+        ctx.lineTo(36, 142);
+        ctx.bezierCurveTo(32, 95, 24, 50, 20, 0);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(138, 180, 224, 0.11)';
+        ctx.strokeStyle = 'rgba(138, 180, 224, 0.35)';
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+
+        capsule(hipX - 12, hipY, hipX - 20, 305, 12, 9, 'rgba(236,233,226,0.07)', 'rgba(236,233,226,0.2)');
+        capsule(hipX - 20, 305, hipX - 22, 365, 9, 7, 'rgba(236,233,226,0.07)', 'rgba(236,233,226,0.2)');
+        capsule(hipX + 12, hipY, hipX + 18, 305, 13, 10, 'rgba(236,233,226,0.13)', 'rgba(138,180,224,0.45)');
+        capsule(hipX + 18, 305, hipX + 18, 365, 10, 7, 'rgba(236,233,226,0.13)', 'rgba(138,180,224,0.45)');
+
+        capsule(hipX, hipY, shX, shY, 18, 23, 'rgba(236,233,226,0.14)', 'rgba(138,180,224,0.55)');
+        ctx.beginPath();
+        ctx.ellipse(hdX, hdY - 10, 20, 25, 0, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(236,233,226,0.16)';
+        ctx.strokeStyle = 'rgba(138,180,224,0.6)';
+        ctx.fill();
+        ctx.stroke();
+
+        const sX = shX + 16, sY = shY + 4;
+        const L1 = 68, L2 = 64;
+        let dx = handX - sX, dy = handY - sY;
+        let d = Math.hypot(dx, dy);
+        const maxR = L1 + L2 - 2;
+        if (d > maxR) { dx = (dx / d) * maxR; dy = (dy / d) * maxR; d = maxR; }
+        const cosA = Math.max(-1, Math.min(1, (L1 * L1 + d * d - L2 * L2) / (2 * L1 * Math.max(1, d))));
+        const baseA = Math.atan2(dy, dx);
+        const elbA = baseA + Math.acos(cosA);
+        const elbX = sX + Math.cos(elbA) * L1;
+        const elbY = sY + Math.sin(elbA) * L1;
+        const endX = sX + dx, endY = sY + dy;
+
+        capsule(sX, sY, elbX, elbY, 10, 8, 'rgba(118,196,220,0.2)', '#76c4dc');
+        capsule(elbX, elbY, endX, endY, 8, 6, 'rgba(118,196,220,0.26)', '#76c4dc');
+
+        pin(hipX, hipY);
+        pin(shX, shY);
+        pin(sX, sY);
+        pin(elbX, elbY);
+        pin(endX, endY);
+
+        ctx.fillStyle = '#76c4dc';
+        ctx.font = '11px "IBM Plex Mono", monospace';
+        ctx.fillText('← IK TARGET HANDLE', endX + 14, endY + 4);
+        ctx.fillStyle = '#8ab4e0';
+        ctx.fillText('SPRING FOLLOW-THROUGH →', 130, 125);
+
+        requestAnimationFrame(tick);
+      }
+      tick();
+    })();
+
+    // ── 3. 2.5D MESH & PERSPECTIVE WALK PATH VISUALIZER ─────────────────────
+    (function initMeshAndPath() {
+      const canvas = document.getElementById('meshAndPathCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let yaw = 0.2, pitch = -0.08;
+      let targetYaw = 0.2, targetPitch = -0.08;
+      let prog = 0, clock = 0;
+
+      canvas.addEventListener('pointermove', e => {
+        const r = canvas.getBoundingClientRect();
+        const nx = ((e.clientX - r.left) / r.width) * 2 - 1;
+        const ny = ((e.clientY - r.top) / r.height) * 2 - 1;
+        targetYaw = nx * 0.5;
+        targetPitch = ny * 0.3;
+      });
+
+      function samplePath(u) {
+        const x = 515 + u * 355 + Math.sin(u * Math.PI * 1.4) * 30;
+        const y = 305 - u * 210;
+        const scale = 0.95 * Math.pow(0.36 / 0.95, u);
+        return { x, y, scale };
+      }
+
+      function drawWalker(x, y, s, phase, alpha) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.scale(s, s);
+        const stride = Math.sin(phase);
+        const hipY = -62 - Math.abs(Math.cos(phase)) * 5;
+        ctx.strokeStyle = `rgba(236, 233, 226, ${alpha})`;
+        ctx.lineWidth = 4;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(0, hipY); ctx.lineTo(stride * 20, 0);
+        ctx.moveTo(0, hipY); ctx.lineTo(-stride * 20, 0);
+        ctx.moveTo(0, hipY); ctx.lineTo(0, hipY - 48);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(0, hipY - 62, 11, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(138, 180, 224, ${alpha})`;
+        ctx.fill();
+        ctx.restore();
+      }
+
+      function loop() {
+        clock += 0.02;
+        prog = (prog + 0.003) % 1.0;
+        yaw += (targetYaw + Math.sin(clock) * 0.07 - yaw) * 0.08;
+        pitch += (targetPitch + Math.cos(clock * 0.8) * 0.04 - pitch) * 0.08;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const cx = 225, cy = 185, cols = 5, rows = 5, w = 155, h = 180;
+        function vtx(c, r) {
+          const u = (c / cols) * 2 - 1;
+          const v = (r / rows) * 2 - 1;
+          const z = Math.cos(u * 1.3) * Math.cos(v * 1.3) * 32;
+          return { x: cx + u * w * 0.5 + yaw * z, y: cy + v * h * 0.5 + pitch * z };
+        }
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            const p00 = vtx(c, r), p10 = vtx(c + 1, r), p01 = vtx(c, r + 1), p11 = vtx(c + 1, r + 1);
+            ctx.beginPath();
+            ctx.moveTo(p00.x, p00.y); ctx.lineTo(p10.x, p10.y); ctx.lineTo(p11.x, p11.y); ctx.lineTo(p01.x, p01.y);
+            ctx.closePath();
+            ctx.strokeStyle = 'rgba(118, 196, 220, 0.25)';
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(p00.x, p00.y); ctx.lineTo(p11.x, p11.y);
+            ctx.strokeStyle = 'rgba(118, 196, 220, 0.12)';
+            ctx.stroke();
+          }
+        }
+        ctx.beginPath();
+        ctx.ellipse(cx + yaw * 14, cy + pitch * 10, 58, 76, yaw * 0.12, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(236, 233, 226, 0.08)';
+        ctx.strokeStyle = '#8ab4e0';
+        ctx.lineWidth = 1.5;
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(450, 20); ctx.lineTo(450, 340);
+        ctx.strokeStyle = 'rgba(236, 233, 226, 0.09)';
+        ctx.stroke();
+
+        ctx.beginPath();
+        for (let i = 0; i <= 50; i++) {
+          const p = samplePath(i / 50);
+          if (i === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
+        }
+        ctx.strokeStyle = 'rgba(138, 180, 224, 0.52)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        [0.12, 0.52, 0.88].forEach(u => {
+          const p = samplePath(u);
+          drawWalker(p.x, p.y, p.scale, u * 24, 0.16);
+        });
+        const cur = samplePath(prog);
+        drawWalker(cur.x, cur.y, cur.scale, prog * 36, 0.92);
+
+        requestAnimationFrame(loop);
+      }
+      loop();
+    })();
+  </script>
+</body>
+</html>
