@@ -4,6 +4,8 @@
 
 > A separate Windows public release is being prepared and is expected soon. This README covers the Android release only.
 
+> This is the first public release, please report the bugs so I can fix them sooner rather than later.
+
 ## Download
 
 **Android release:** TwoD Studio **1.6.2** (build **29**)
