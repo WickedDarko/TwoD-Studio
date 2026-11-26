@@ -11,7 +11,7 @@
 
 [Download the latest Android APK](https://github.com/WickedDarko/TwoD-Studio/releases)
 
-The APK is shared free of charge. TwoD Studio is a personal project; this is not an open-source release, and no source-code license is granted.
+The APK is shared free of charge. TwoD Studio is a personal project still under development; this is not an open-source release, and no source-code license is granted.
 
 ## About
 
